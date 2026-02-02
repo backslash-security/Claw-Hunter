@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <b>Claw Hunter</b> is a discovery and risk-assessment tool for <b>OpenClaw</b> (formerly known as Clawdbot and Moltbot) instances. It identifies "Shadow AI", audits agent privileges, and secures your corporate data silos from autonomous overreach.
+  <b>Claw Hunter</b> is a discovery and risk-assessment tool for <b>OpenClaw</b> (formerly known as Clawdbot and Moltbot) instances. It identifies "Shadow AI", audits agent privileges. It let's you (the user) ensure that your user endpoints, data and network are not compromised by unauthorized access.
 </p>
 
 
@@ -243,9 +243,8 @@ This tool performs read-only security audits and does not modify system configur
 
 ## 🤝 Contact & Support
 
-For security disclosures, enterprise support, or general inquiries, please reach out to the team:
+For security disclosures, enterprise support, or general inquiries, please reach out to the team.
 
-* 💌 **Email:** [hello@backslash.security](mailto:hello@backslash.security)
 * 🌐 **Website:** [backslash.security](https://backslash.security/)
 
 

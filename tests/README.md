@@ -45,7 +45,7 @@ cd tests/powershell
 3. **Invalid Flags**: Ensures unknown flags return appropriate errors
 4. **JSON Output**: Validates `--json` flag produces valid JSON
 5. **JSON File Output**: Tests `--json-path` creates output file
-6. **Exit Codes**: Verifies proper exit codes (0, 1, 2, 3)
+6. **Exit Codes**: Verifies proper exit codes (0=success, 1=error)
 7. **MDM Silent Mode**: Confirms `--mdm` suppresses terminal output
 8. **MDM Metadata**: Validates machine identification data
 9. **Security Summary**: Tests risk scoring calculation
@@ -59,7 +59,7 @@ cd tests/powershell
 3. **Invalid Flags**: Ensures unknown flags return appropriate errors
 4. **JSON Output**: Validates `--json` flag produces valid JSON
 5. **JSON File Output**: Tests `--json-path` creates output file
-6. **Exit Codes**: Verifies proper exit codes (0, 1, 2, 3)
+6. **Exit Codes**: Verifies proper exit codes (0=success, 1=error)
 7. **MDM Silent Mode**: Confirms `--mdm` suppresses terminal output
 8. **MDM Metadata**: Validates machine identification data
 9. **Security Summary**: Tests risk scoring calculation

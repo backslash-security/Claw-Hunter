@@ -40,7 +40,7 @@ jobs:
       
       - name: Run smoke test
         run: |
-          # Run script - accept exit codes 0, 1, or 2 (0=clean, 1=issues, 2=not installed)
+          # Run script - should exit 0 for success
           ./claw-hunter.sh --json-path /tmp/smoke-test.json || EXIT_CODE=$?
           
           if [ -f /tmp/smoke-test.json ]; then
@@ -57,8 +57,8 @@ jobs:
             exit 1
           fi
           
-          # Exit code 2 is OK (OpenClaw not installed in test environment)
-          if [ "${EXIT_CODE:-0}" -eq 0 ] || [ "${EXIT_CODE:-0}" -eq 1 ] || [ "${EXIT_CODE:-0}" -eq 2 ]; then
+          # Script should exit 0 for success
+          if [ "${EXIT_CODE:-0}" -eq 0 ]; then
             echo "✓ Script exit code is valid: ${EXIT_CODE:-0}"
             exit 0
           else
@@ -92,8 +92,8 @@ jobs:
               exit 1
             fi
           else
-            # Check if it's just a network issue (acceptable in CI)
-            if [ "${EXIT_CODE:-0}" -eq 0 ] || [ "${EXIT_CODE:-0}" -eq 1 ] || [ "${EXIT_CODE:-0}" -eq 2 ]; then
+            # Check if script ran successfully
+            if [ "${EXIT_CODE:-0}" -eq 0 ]; then
               echo "⚠ HTTP upload test passed with warnings (exit code: ${EXIT_CODE:-0})"
               exit 0
             else
@@ -124,7 +124,7 @@ jobs:
       - name: Run smoke test
         shell: powershell
         run: |
-          # Run script - accept exit codes 0, 1, or 2 (0=clean, 1=issues, 2=not installed)
+          # Run script - should exit 0 for success
           $ErrorActionPreference = "Continue"
           .\claw-hunter.ps1 --json-path "$env:TEMP\smoke-test.json"
           $exitCode = $LASTEXITCODE
@@ -145,8 +145,8 @@ jobs:
             exit 1
           }
           
-          # Exit code 2 is OK (OpenClaw not installed in test environment)
-          if ($exitCode -eq 0 -or $exitCode -eq 1 -or $exitCode -eq 2) {
+          # Script should exit 0 for success
+          if ($exitCode -eq 0) {
             Write-Host "[PASS] Script exit code is valid: $exitCode" -ForegroundColor Green
             exit 0
           } else {
@@ -184,8 +184,8 @@ jobs:
               exit 1
             }
           } else {
-            # Check if it's just a network issue (acceptable in CI)
-            if ($exitCode -in @(0, 1, 2)) {
+            # Check if script ran successfully
+            if ($exitCode -eq 0) {
               Write-Host "[WARN] HTTP upload test passed with warnings (exit code: $exitCode)" -ForegroundColor Yellow
               exit 0
             } else {

@@ -790,7 +790,7 @@ if ($JsonPathSet -or $JsonToStdout) {
                 Write-Host "[X] Failed to write JSON output: $JsonPath" -ForegroundColor Red
                 Write-Host $_.Exception.Message -ForegroundColor DarkRed
             }
-            exit 3
+            exit 1
         }
     }
 }
@@ -808,7 +808,7 @@ if ($JsonToStdout -and -not $MdmMode) {
 if (-not [string]::IsNullOrWhiteSpace($UploadUrl)) {
     if ([string]::IsNullOrWhiteSpace($jsonString)) {
         Write-Log -Level "ERROR" -Message "Cannot upload: no JSON data generated"
-        exit 3
+        exit 1
     }
     
     Write-Log -Level "INFO" -Message "Uploading results to: $UploadUrl"
@@ -836,21 +836,8 @@ if (-not [string]::IsNullOrWhiteSpace($UploadUrl)) {
     }
 }
 
-# Determine exit code
-$exitCode = 0
-if (-not $results.cli_installed -and -not $results.config_exists -and -not (Test-Path $stateDir)) {
-    $exitCode = 2  # OpenClaw not installed
-    Write-Log -Level "INFO" -Message "Exit code: 2 (OpenClaw not detected)"
-} elseif ($criticalIssues -gt 0) {
-    $exitCode = 1  # Security issues found
-    Write-Log -Level "INFO" -Message "Exit code: 1 (Security issues detected: $criticalIssues critical)"
-} elseif ($warnings -gt 0) {
-    $exitCode = 1  # Warnings found
-    Write-Log -Level "INFO" -Message "Exit code: 1 (Warnings detected: $warnings warnings)"
-} else {
-    $exitCode = 0  # Clean
-    Write-Log -Level "INFO" -Message "Exit code: 0 (No issues detected)"
-}
+# Script completed successfully
+Write-Log -Level "INFO" -Message "Audit completed successfully"
 
 # Final output based on mode
 if (-not $MdmMode) {
@@ -860,5 +847,5 @@ if (-not $MdmMode) {
     }
 }
 
-exit $exitCode
+exit 0
 

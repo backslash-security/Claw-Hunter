@@ -138,13 +138,13 @@ function Test-ExitCodes {
         $exitCode = $LASTEXITCODE
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
-        if ($exitCode -in @(0, 1, 2)) {
+        if ($exitCode -in @(0, 1)) {
             Pass "Exit code is valid ($exitCode)"
         } else {
-            Fail "Exit code is valid" "0, 1, or 2" "$exitCode"
+            Fail "Exit code is valid" "0 or 1" "$exitCode"
         }
     } catch {
-        Fail "Exit code is valid" "0, 1, or 2" "error: $_"
+        Fail "Exit code is valid" "0 or 1" "error: $_"
     }
 }
 
@@ -255,7 +255,7 @@ function Test-HttpUpload {
                 # Upload was attempted but failed - could be network issue
                 Write-Host "[SKIP] HTTP upload test (upload failed - network or connectivity issue)" -ForegroundColor Yellow
                 $script:TestsRun++
-            } elseif ($exitCode -in @(0, 1, 2)) {
+            } elseif ($exitCode -eq 0) {
                 # Script ran successfully but no upload confirmation
                 Write-Host "[SKIP] HTTP upload test (upload status unclear)" -ForegroundColor Yellow
                 $script:TestsRun++

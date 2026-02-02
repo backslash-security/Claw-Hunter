@@ -117,17 +117,17 @@ test_json_file_output() {
     fi
 }
 
-# Test 6: Exit code is proper (0, 1, or 2)
+# Test 6: Exit code is proper (0 or 1)
 test_exit_codes() {
     echo "Test: Script returns valid exit code"
     local exit_code
     bash "$AUDIT_SCRIPT" --json-path /tmp/test-exit-$$.json >/dev/null 2>&1 || exit_code=$?
     rm -f /tmp/test-exit-$$.json
     
-    if [[ ${exit_code:-0} -eq 0 || ${exit_code:-0} -eq 1 || ${exit_code:-0} -eq 2 ]]; then
+    if [[ ${exit_code:-0} -eq 0 || ${exit_code:-0} -eq 1 ]]; then
         pass "Exit code is valid (${exit_code:-0})"
     else
-        fail "Exit code is valid" "0, 1, or 2" "${exit_code:-0}"
+        fail "Exit code is valid" "0 or 1" "${exit_code:-0}"
     fi
 }
 
@@ -220,8 +220,8 @@ test_http_upload() {
         if [[ -f "$log_file" ]] && grep -qi "upload failed\|curl not found" "$log_file"; then
             # Upload was attempted but failed - could be network issue
             skip "HTTP upload test (upload failed - network or connectivity issue)"
-        elif [[ ${exit_code:-0} -eq 0 || ${exit_code:-0} -eq 1 || ${exit_code:-0} -eq 2 ]]; then
-            # Script ran successfully but no upload confirmation - might be that curl is not available
+        elif [[ ${exit_code:-0} -eq 0 ]]; then
+            # Script ran successfully but no upload confirmation
             skip "HTTP upload test (upload status unclear)"
         else
             fail "HTTP upload test" "upload success message in logs" "no success message found"

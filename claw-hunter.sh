@@ -87,7 +87,7 @@ while [[ $# -gt 0 ]]; do
     *)
       echo "Unknown argument: $1" >&2
       usage >&2
-      exit 3
+      exit 1
       ;;
   esac
 done
@@ -885,13 +885,13 @@ run_audit() {
     if [[ "$JSON_PATH_SET" == "true" ]]; then
       mkdir -p "$(dirname "$JSON_PATH")" 2>/dev/null || {
         log_msg "ERROR" "Failed to create directory for JSON output: $(dirname "$JSON_PATH")"
-        return 3
+        return 1
       }
       if printf '%s\n' "$json" >"$JSON_PATH" 2>/dev/null; then
         log_msg "INFO" "JSON written to: $JSON_PATH"
       else
         log_msg "ERROR" "Failed to write JSON to: $JSON_PATH"
-        return 3
+        return 1
       fi
     fi
 
@@ -909,7 +909,7 @@ run_audit() {
   if [[ -n "$UPLOAD_URL" ]]; then
     if [[ -z "$json" ]]; then
       log_msg "ERROR" "Cannot upload: no JSON data generated"
-      return 3
+      return 1
     fi
     
     log_msg "INFO" "Uploading results to: $UPLOAD_URL"
@@ -934,23 +934,9 @@ run_audit() {
     fi
   fi
   
-  # Determine exit code based on findings
-  local exit_code=0
-  if [[ "$cli_installed" != "true" && "$config_exists" != "true" && ! -d "$state_dir" ]]; then
-    exit_code=2  # OpenClaw not installed
-    log_msg "INFO" "Exit code: 2 (OpenClaw not detected)"
-  elif [[ $critical_issues -gt 0 ]]; then
-    exit_code=1  # Security issues found
-    log_msg "INFO" "Exit code: 1 (Security issues detected: $critical_issues critical)"
-  elif [[ $warnings -gt 0 ]]; then
-    exit_code=1  # Warnings found
-    log_msg "INFO" "Exit code: 1 (Warnings detected: $warnings warnings)"
-  else
-    exit_code=0  # Clean
-    log_msg "INFO" "Exit code: 0 (No issues detected)"
-  fi
-  
-  return $exit_code
+  # Script completed successfully
+  log_msg "INFO" "Audit completed successfully"
+  return 0
 }
 
 # Run audit and capture exit code
