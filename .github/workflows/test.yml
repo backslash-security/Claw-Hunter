@@ -40,12 +40,29 @@ jobs:
       
       - name: Run smoke test
         run: |
-          ./claw-hunter.sh --json-path /tmp/smoke-test.json
+          # Run script - accept exit codes 0, 1, or 2 (0=clean, 1=issues, 2=not installed)
+          ./claw-hunter.sh --json-path /tmp/smoke-test.json || EXIT_CODE=$?
+          
           if [ -f /tmp/smoke-test.json ]; then
-            echo "✓ Smoke test passed"
-            jq . /tmp/smoke-test.json > /dev/null
+            echo "✓ Smoke test passed - JSON file created"
+            # Validate JSON is well-formed
+            if jq . /tmp/smoke-test.json > /dev/null 2>&1; then
+              echo "✓ JSON is valid"
+            else
+              echo "✗ JSON is invalid"
+              exit 1
+            fi
           else
-            echo "✗ Smoke test failed"
+            echo "✗ Smoke test failed - no JSON file created"
+            exit 1
+          fi
+          
+          # Exit code 2 is OK (OpenClaw not installed in test environment)
+          if [ "${EXIT_CODE:-0}" -eq 0 ] || [ "${EXIT_CODE:-0}" -eq 1 ] || [ "${EXIT_CODE:-0}" -eq 2 ]; then
+            echo "✓ Script exit code is valid: ${EXIT_CODE:-0}"
+            exit 0
+          else
+            echo "✗ Unexpected exit code: ${EXIT_CODE:-0}"
             exit 1
           fi
         shell: bash
@@ -67,12 +84,36 @@ jobs:
       - name: Run smoke test
         shell: powershell
         run: |
-          .\claw-hunter.ps1 --json-path "$env:TEMP\smoke-test.json"
+          # Run script - accept exit codes 0, 1, or 2 (0=clean, 1=issues, 2=not installed)
+          $exitCode = 0
+          try {
+            .\claw-hunter.ps1 --json-path "$env:TEMP\smoke-test.json"
+          } catch {
+            $exitCode = $LASTEXITCODE
+          }
+          
           if (Test-Path "$env:TEMP\smoke-test.json") {
-            Write-Host "✓ Smoke test passed" -ForegroundColor Green
-            $json = Get-Content "$env:TEMP\smoke-test.json" | ConvertFrom-Json
+            Write-Host "✓ Smoke test passed - JSON file created" -ForegroundColor Green
+            
+            # Validate JSON is well-formed
+            try {
+              $json = Get-Content "$env:TEMP\smoke-test.json" | ConvertFrom-Json
+              Write-Host "✓ JSON is valid" -ForegroundColor Green
+            } catch {
+              Write-Host "✗ JSON is invalid" -ForegroundColor Red
+              exit 1
+            }
           } else {
-            Write-Host "✗ Smoke test failed" -ForegroundColor Red
+            Write-Host "✗ Smoke test failed - no JSON file created" -ForegroundColor Red
+            exit 1
+          }
+          
+          # Exit code 2 is OK (OpenClaw not installed in test environment)
+          if ($exitCode -eq 0 -or $exitCode -eq 1 -or $exitCode -eq 2) {
+            Write-Host "✓ Script exit code is valid: $exitCode" -ForegroundColor Green
+            exit 0
+          } else {
+            Write-Host "✗ Unexpected exit code: $exitCode" -ForegroundColor Red
             exit 1
           }
 

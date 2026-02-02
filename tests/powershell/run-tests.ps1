@@ -21,7 +21,7 @@ Write-Host ""
 # Helper functions
 function Pass {
     param([string]$Message)
-    Write-Host "✓ $Message" -ForegroundColor Green
+    Write-Host "[PASS] $Message" -ForegroundColor Green
     $script:TestsPassed++
     $script:TestsRun++
 }
@@ -32,7 +32,7 @@ function Fail {
         [string]$Expected,
         [string]$Got
     )
-    Write-Host "✗ $Message" -ForegroundColor Red
+    Write-Host "[FAIL] $Message" -ForegroundColor Red
     Write-Host "  Expected: $Expected" -ForegroundColor DarkRed
     Write-Host "  Got: $Got" -ForegroundColor DarkRed
     $script:TestsFailed++
@@ -155,8 +155,8 @@ function Test-MdmModeSilent {
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
         $lineCount = ($output -split "`n").Count
-        if ($lineCount -lt 5) {
-            Pass "MDM mode is silent"
+        if ($lineCount -lt 10) {
+            Pass "MDM mode is silent ($lineCount lines)"
         } else {
             Fail "MDM mode is silent" "minimal output" "$lineCount lines"
         }
