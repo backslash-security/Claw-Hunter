@@ -1,1 +1,255 @@
 # Claw-Hunter
+
+[![Bash](https://img.shields.io/badge/Bash-3.2+-green.svg)](https://www.gnu.org/software/bash/)
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue.svg)](https://docs.microsoft.com/en-us/powershell/)
+
+**By [Backslash Security](https://backslash.security)**
+
+A comprehensive, cross-platform security audit tool for OpenClaw AI agent deployments. Designed for enterprise MDM deployment and automated security monitoring.
+
+> **Note:** Claw-Hunter is a security audit tool developed by Backslash Security to help organizations assess and monitor OpenClaw installations across their infrastructure.
+
+## 🎯 Purpose
+
+Claw-Hunter provides IT administrators with a comprehensive security assessment of OpenClaw installations across their organization. It detects:
+
+- **Security Risks**: Shell access, filesystem write permissions, exposed gateways
+- **Credential Exposure**: Scans for potential secrets and API keys
+- **Configuration Issues**: Missing auth tokens, misconfigured services
+- **Installation Status**: CLI, config files, running processes
+- **Integration Inventory**: Active agents, channels, and registry entries
+
+## ✨ Features
+
+### Core Capabilities
+- ✅ **Cross-platform**: macOS, Linux (bash 3.2+), Windows (PowerShell 5.1+)
+- ✅ **MDM-Ready**: Silent execution, proper exit codes, centralized logging
+- ✅ **Non-Intrusive**: Read-only operations, no system modifications
+- ✅ **Comprehensive Detection**: Installation, configuration, processes, secrets
+- ✅ **Structured Output**: JSON format for automation and SIEM integration
+- ✅ **Zero Dependencies**: Pure bash/PowerShell, optional `jq` for enhanced JSON
+
+### MDM Integration
+- 🔒 Silent execution mode for automated deployment
+- 📊 Machine identification (hostname, serial number, timestamp)
+- 🎯 Security risk scoring (clean, warning, critical)
+- 📤 Upload results to central API endpoint
+- 🔐 Bearer token authentication support
+- 📝 Persistent logging to standard locations
+- ✅ Proper exit codes for automation
+
+### Exit Codes
+- `0`: No issues detected (clean)
+- `1`: Security issues or warnings found
+- `2`: OpenClaw not installed
+- `3`: Script execution error
+
+## 🚀 Quick Start
+
+### Interactive Mode (Manual Audit)
+
+**macOS/Linux:**
+```bash
+# Download and run
+curl -O https://raw.githubusercontent.com/yourorg/claw-hunter/main/claw-hunter.sh
+chmod +x claw-hunter.sh
+./claw-hunter.sh
+```
+
+**Windows:**
+```powershell
+# Download and run
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/yourorg/claw-hunter/main/claw-hunter.ps1 -OutFile claw-hunter.ps1
+.\claw-hunter.ps1
+```
+
+### MDM Deployment (Automated)
+
+**Jamf Pro (macOS):**
+```bash
+sudo /path/to/claw-hunter.sh --mdm --upload-url https://your-api.com/audits --api-key-file /etc/openclaw-key
+```
+
+**Microsoft Intune (Windows):**
+```powershell
+.\claw-hunter.ps1 --mdm --upload-url https://your-api.com/audits
+```
+
+See [MDM Deployment Guides](docs/mdm-guides/) for platform-specific instructions.
+
+## 📖 Usage
+
+### Command-Line Options
+
+```bash
+./claw-hunter.sh [OPTIONS]
+
+Options:
+  --json                   Print JSON output to terminal (stdout)
+  --json-path <file>       Save JSON results to this file path
+  --mdm                    MDM mode: silent execution with JSON output
+  --upload-url <url>       Upload JSON results to this URL
+  --api-key-file <file>    File containing API key for authentication
+  --log-file <file>        Write logs to this file
+  -h, --help               Show help message
+
+MDM Mode:
+  Silent execution designed for automated deployment via MDM platforms.
+  - Suppresses terminal output (errors go to stderr)
+  - Writes JSON to /var/log/claw-hunter.json (Unix) or C:\ProgramData\claw-hunter.json (Windows)
+  - Logs to corresponding .log file
+  - Returns proper exit codes for automation
+```
+
+### Examples
+
+```bash
+# Interactive mode with terminal output
+./claw-hunter.sh
+
+# Save results to JSON file
+./claw-hunter.sh --json-path /tmp/audit-results.json
+
+# Print JSON to stdout
+./claw-hunter.sh --json
+
+# MDM deployment with upload
+sudo ./claw-hunter.sh --mdm --upload-url https://api.example.com/audits --api-key-file /etc/audit-key
+
+# MDM with custom paths
+sudo ./claw-hunter.sh --mdm --json-path /custom/audit.json --log-file /var/log/custom.log
+```
+
+## 📊 Output Format
+
+### Terminal Output (Interactive Mode)
+```
+==========================================
+🛡️  CLAW-HUNTER: UNIX/MAC 
+==========================================
+
+--- [ Detection ] ---
+✅ State Dir: /Users/john/.openclaw
+✅ Config: /Users/john/.openclaw/openclaw.json (found)
+✅ CLI: /usr/local/bin/openclaw (v1.2.3)
+
+--- [ Network & Gateway ] ---
+⚡ Gateway: ACTIVE (Port 18789 | PID: 12345)
+⚠️  Gateway auth token: NOT SET
+
+--- [ Privileges & Tools ] ---
+❗ RISK: Shell Access ENABLED
+✅ Filesystem Write: not flagged
+```
+
+### JSON Output (MDM Mode)
+```json
+{
+  "mdm_mode": true,
+  "mdm_metadata": {
+    "hostname": "LAPTOP-ABC123",
+    "serial_number": "C02XYZ123456",
+    "timestamp": "2026-02-02T20:30:00Z",
+    "script_version": "1.0"
+  },
+  "security_summary": {
+    "risk_level": "warning",
+    "critical_issues": 1,
+    "warnings": 2,
+    "info_items": 5
+  },
+  "platform": "unix",
+  "os": "macos",
+  "cli_installed": true,
+  "cli_version": "1.2.3",
+  "gateway_running": true,
+  "gateway_token_set": false,
+  "risk_shell_access_enabled": true,
+  "secrets_found": false
+}
+```
+
+See [examples/](examples/) for complete output samples.
+
+## 🔧 Requirements
+
+### Bash Script (macOS/Linux)
+- Bash 3.2 or higher (pre-installed on macOS/most Linux)
+- Standard Unix utilities: `grep`, `awk`, `sed`, `find`
+- Optional: `jq` for enhanced JSON formatting
+- Root/sudo access for MDM mode (for serial number access)
+
+### PowerShell Script (Windows)
+- PowerShell 5.1 or higher (Windows 10/11)
+- No additional dependencies
+- Administrator privileges recommended for MDM mode
+
+## 🧪 Testing
+
+Run the test suite to verify functionality:
+
+```bash
+# Bash tests
+cd tests/bash
+./run-tests.sh
+
+# PowerShell tests
+cd tests/powershell
+.\run-tests.ps1
+```
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
+## 📚 Documentation
+
+- [MDM Deployment Guides](docs/mdm-guides/) - Platform-specific deployment instructions
+- [API Integration](docs/api-integration.md) - Upload endpoint specification
+- [Security Considerations](docs/security.md) - What the audit detects and why
+- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
+- [Contributing](CONTRIBUTING.md) - How to contribute to this project
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Quick Contribution Steps
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes and add tests
+4. Run the test suite
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## 📋 Roadmap
+
+- [ ] Add support for additional MDM platforms (Mosyle, Kandji, SimpleMDM)
+- [ ] Compliance framework mapping (CIS, NIST)
+- [ ] HTML report generation
+- [ ] Docker/container detection
+- [ ] Network-based discovery (scan multiple hosts)
+- [ ] Remediation scripts for common issues
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- OpenClaw community for security best practices
+- MDM administrators who provided deployment feedback
+- Contributors and testers
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/backslash-security/claw-hunter/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/backslash-security/claw-hunter/discussions)
+- **Security**: See [SECURITY.md](SECURITY.md) for reporting vulnerabilities
+
+## ⚠️ Disclaimer
+
+This tool performs read-only security audits and does not modify system configurations. Always test in a non-production environment first. The tool detects potential security issues but does not make judgments about your specific security requirements.
+
+---
+
+Made with ❤️ for the OpenClaw community

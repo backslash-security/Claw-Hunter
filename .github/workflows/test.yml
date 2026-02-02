@@ -1,0 +1,115 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-bash:
+    name: Bash Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install jq (for JSON validation)
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y jq
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install jq
+          fi
+        shell: bash
+      
+      - name: Make scripts executable
+        run: |
+          chmod +x claw-hunter.sh
+          chmod +x tests/bash/run-tests.sh
+        
+      - name: Run Bash tests
+        run: |
+          cd tests/bash
+          ./run-tests.sh
+        shell: bash
+      
+      - name: Run smoke test
+        run: |
+          ./claw-hunter.sh --json-path /tmp/smoke-test.json
+          if [ -f /tmp/smoke-test.json ]; then
+            echo "✓ Smoke test passed"
+            jq . /tmp/smoke-test.json > /dev/null
+          else
+            echo "✗ Smoke test failed"
+            exit 1
+          fi
+        shell: bash
+
+  test-powershell:
+    name: PowerShell Tests
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Run PowerShell tests
+        shell: powershell
+        run: |
+          cd tests/powershell
+          .\run-tests.ps1
+      
+      - name: Run smoke test
+        shell: powershell
+        run: |
+          .\claw-hunter.ps1 --json-path "$env:TEMP\smoke-test.json"
+          if (Test-Path "$env:TEMP\smoke-test.json") {
+            Write-Host "✓ Smoke test passed" -ForegroundColor Green
+            $json = Get-Content "$env:TEMP\smoke-test.json" | ConvertFrom-Json
+          } else {
+            Write-Host "✗ Smoke test failed" -ForegroundColor Red
+            exit 1
+          }
+
+  lint-bash:
+    name: Bash Linting (shellcheck)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      
+      - name: Run shellcheck
+        run: shellcheck claw-hunter.sh || true
+        # Set to || true for now, can make strict later
+
+  lint-powershell:
+    name: PowerShell Linting (PSScriptAnalyzer)
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install PSScriptAnalyzer
+        shell: powershell
+        run: Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+      
+      - name: Run PSScriptAnalyzer
+        shell: powershell
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path .\claw-hunter.ps1 -Severity Warning,Error
+          if ($results) {
+            $results | Format-Table -AutoSize
+            Write-Host "⚠️ PSScriptAnalyzer found issues" -ForegroundColor Yellow
+          } else {
+            Write-Host "✓ PSScriptAnalyzer passed" -ForegroundColor Green
+          }

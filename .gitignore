@@ -1,0 +1,32 @@
+# Test outputs
+*.json
+*.log
+/tests/**/*.json
+/tests/**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Test artifacts
+/tests/tmp/
+/tests/output/
+
+# Coverage reports
+coverage/
+*.coverage
+
+# Backup files
+*.bak
+*.backup
+
+# Local configuration
+.env
+config.local.*
