@@ -1,34 +1,62 @@
-# Claw-Hunter
+<p align="center">
+    <picture>
+        <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/f9c86720-e48d-4830-ab02-6db338895ff0" width="600">
+        <img src="https://github.com/user-attachments/assets/6dd7071d-2e77-4727-8c3d-4ba0ed66c922" alt="Hunter" width="600">
+    </picture>
+</p>
 
+<h1 align="center">
+  🦞 Claw Hunter 🦞 by Backslash Security
+    
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bash](https://img.shields.io/badge/Bash-3.2+-green.svg)](https://www.gnu.org/software/bash/)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue.svg)](https://docs.microsoft.com/en-us/powershell/)
 
-**By [Backslash Security](https://backslash.security)**
+</h1>
 
-A comprehensive, cross-platform security audit tool for OpenClaw AI agent deployments. Designed for enterprise MDM deployment and automated security monitoring.
+<p align="center">
+  <strong> Let us guess, your developers are not running OpenClaw, are they? 👀 </strong>
+</p>
 
-> **Note:** Claw-Hunter is a security audit tool developed by Backslash Security to help organizations assess and monitor OpenClaw installations across their infrastructure.
+<p align="center">
+  <b>Claw Hunter</b> is a discovery and risk-assessment tool for <b>OpenClaw</b> (formerly known as Clawdbot and Moltbot) instances. It identifies "Shadow AI", audits agent privileges, and secures your corporate data silos from autonomous overreach.
+</p>
 
-## 🎯 Purpose
 
-Claw-Hunter provides IT administrators with a comprehensive security assessment of OpenClaw installations across their organization. It detects:
+<p align="center">
+  <a href="https://backslash.security/">
+      <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/3545ac7f-80e6-4ebe-ace6-597864fda708" width="300">
+    <img width="300" alt="Backslash Security" src="https://github.com/user-attachments/assets/b6d255af-eed6-42fb-8b74-67cb4d99fd02" >
+  </picture>
+  </a>
+</p>
 
-- **Security Risks**: Shell access, filesystem write permissions, exposed gateways
-- **Credential Exposure**: Scans for potential secrets and API keys
-- **Configuration Issues**: Missing auth tokens, misconfigured services
-- **Installation Status**: CLI, config files, running processes
-- **Integration Inventory**: Active agents, channels, and registry entries
 
-## ✨ Features
 
-### Core Capabilities
-- ✅ **Cross-platform**: macOS, Linux (bash 3.2+), Windows (PowerShell 5.1+)
-- ✅ **MDM-Ready**: Silent execution, proper exit codes, centralized logging
-- ✅ **Non-Intrusive**: Read-only operations, no system modifications
-- ✅ **Comprehensive Detection**: Installation, configuration, processes, secrets
-- ✅ **Structured Output**: JSON format for automation and SIEM integration
-- ✅ **Zero Dependencies**: Pure bash/PowerShell, optional `jq` for enhanced JSON
 
+## 🛡️ Why it matters for Security Teams
+
+In the 2026 landscape, autonomous agents like OpenClaw operate as high-privilege service accounts. While they boost productivity, they often bypass standard IAM policies, creating "Shadow AI" instances that can execute shell commands and move data across your network.
+
+**Claw Hunter** is purpose-built for **ITSec teams** to detect:
+
+* **Security Risks**: Shell access, filesystem write permissions, exposed gateways
+* **Credential Exposure**: Scans for potential secrets and API keys
+* **Integration Inventory:** Active agents, channels, and registry entries
+* **Configuration Issues**: Missing auth tokens, misconfigured services
+* **Installation Status**: CLI, config files, running processes
+
+
+## ✨ Core Capabilities
+
+* ✅ **System Agnostic Visibility:** macOS, Linux (bash 3.2+), Windows (PowerShell 5.1+)
+* ✅ **MDM-Ready**: Silent execution, proper exit codes, centralized logging
+* ✅ **Non-Intrusive**: Read-only operations, no system modifications
+* ✅ **Comprehensive Detection**: Installation, configuration, processes, secrets
+* ✅ **Structured Output**: JSON format for automation and SIEM integration
+* ✅ **Zero Dependencies**: Pure bash/PowerShell, optional `jq` for enhanced JSON
+  
 ### MDM Integration
 - 🔒 Silent execution mode for automated deployment
 - 📊 Machine identification (hostname, serial number, timestamp)
@@ -51,28 +79,28 @@ Claw-Hunter provides IT administrators with a comprehensive security assessment 
 **macOS/Linux:**
 ```bash
 # Download and run
-curl -O https://raw.githubusercontent.com/yourorg/claw-hunter/main/claw-hunter.sh
-chmod +x claw-hunter.sh
-./claw-hunter.sh
+curl -O https://raw.githubusercontent.com/yourorg/openclaw-audit/main/openclaw-audit.sh
+chmod +x openclaw-audit.sh
+./openclaw-audit.sh
 ```
 
 **Windows:**
 ```powershell
 # Download and run
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/yourorg/claw-hunter/main/claw-hunter.ps1 -OutFile claw-hunter.ps1
-.\claw-hunter.ps1
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/yourorg/openclaw-audit/main/openclaw-audit.ps1 -OutFile openclaw-audit.ps1
+.\openclaw-audit.ps1
 ```
 
 ### MDM Deployment (Automated)
 
 **Jamf Pro (macOS):**
 ```bash
-sudo /path/to/claw-hunter.sh --mdm --upload-url https://your-api.com/audits --api-key-file /etc/openclaw-key
+sudo /path/to/openclaw-audit.sh --mdm --upload-url https://your-api.com/audits --api-key-file /etc/openclaw-key
 ```
 
 **Microsoft Intune (Windows):**
 ```powershell
-.\claw-hunter.ps1 --mdm --upload-url https://your-api.com/audits
+.\openclaw-audit.ps1 --mdm --upload-url https://your-api.com/audits
 ```
 
 See [MDM Deployment Guides](docs/mdm-guides/) for platform-specific instructions.
@@ -82,7 +110,7 @@ See [MDM Deployment Guides](docs/mdm-guides/) for platform-specific instructions
 ### Command-Line Options
 
 ```bash
-./claw-hunter.sh [OPTIONS]
+./openclaw-audit.sh [OPTIONS]
 
 Options:
   --json                   Print JSON output to terminal (stdout)
@@ -96,7 +124,7 @@ Options:
 MDM Mode:
   Silent execution designed for automated deployment via MDM platforms.
   - Suppresses terminal output (errors go to stderr)
-  - Writes JSON to /var/log/claw-hunter.json (Unix) or C:\ProgramData\claw-hunter.json (Windows)
+  - Writes JSON to /var/log/openclaw-audit.json (Unix) or C:\ProgramData\openclaw-audit.json (Windows)
   - Logs to corresponding .log file
   - Returns proper exit codes for automation
 ```
@@ -105,19 +133,19 @@ MDM Mode:
 
 ```bash
 # Interactive mode with terminal output
-./claw-hunter.sh
+./openclaw-audit.sh
 
 # Save results to JSON file
-./claw-hunter.sh --json-path /tmp/audit-results.json
+./openclaw-audit.sh --json-path /tmp/audit-results.json
 
 # Print JSON to stdout
-./claw-hunter.sh --json
+./openclaw-audit.sh --json
 
 # MDM deployment with upload
-sudo ./claw-hunter.sh --mdm --upload-url https://api.example.com/audits --api-key-file /etc/audit-key
+sudo ./openclaw-audit.sh --mdm --upload-url https://api.example.com/audits --api-key-file /etc/audit-key
 
 # MDM with custom paths
-sudo ./claw-hunter.sh --mdm --json-path /custom/audit.json --log-file /var/log/custom.log
+sudo ./openclaw-audit.sh --mdm --json-path /custom/audit.json --log-file /var/log/custom.log
 ```
 
 ## 📊 Output Format
@@ -125,7 +153,7 @@ sudo ./claw-hunter.sh --mdm --json-path /custom/audit.json --log-file /var/log/c
 ### Terminal Output (Interactive Mode)
 ```
 ==========================================
-🛡️  CLAW-HUNTER: UNIX/MAC 
+🛡️  OPENCLAW SECURITY AUDIT: UNIX/MAC (v3)
 ==========================================
 
 --- [ Detection ] ---
@@ -150,7 +178,7 @@ sudo ./claw-hunter.sh --mdm --json-path /custom/audit.json --log-file /var/log/c
     "hostname": "LAPTOP-ABC123",
     "serial_number": "C02XYZ123456",
     "timestamp": "2026-02-02T20:30:00Z",
-    "script_version": "1.0"
+    "script_version": "3.0"
   },
   "security_summary": {
     "risk_level": "warning",
@@ -200,56 +228,35 @@ cd tests/powershell
 
 See [tests/README.md](tests/README.md) for detailed testing documentation.
 
-## 📚 Documentation
+## 📝 License
+Distributed under the MIT License. see the [LICENSE](LICENSE) file for details.
 
-- [MDM Deployment Guides](docs/mdm-guides/) - Platform-specific deployment instructions
-- [API Integration](docs/api-integration.md) - Upload endpoint specification
-- [Security Considerations](docs/security.md) - What the audit detects and why
-- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
-- [Contributing](CONTRIBUTING.md) - How to contribute to this project
+## ⚖️ Legal Disclaimer
 
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Quick Contribution Steps
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes and add tests
-4. Run the test suite
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-## 📋 Roadmap
-
-- [ ] Add support for additional MDM platforms (Mosyle, Kandji, SimpleMDM)
-- [ ] Compliance framework mapping (CIS, NIST)
-- [ ] HTML report generation
-- [ ] Docker/container detection
-- [ ] Network-based discovery (scan multiple hosts)
-- [ ] Remediation scripts for common issues
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- OpenClaw community for security best practices
-- MDM administrators who provided deployment feedback
-- Contributors and testers
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/backslash-security/claw-hunter/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/backslash-security/claw-hunter/discussions)
-- **Security**: See [SECURITY.md](SECURITY.md) for reporting vulnerabilities
+**Claw Hunter** is an independent security research tool. We are **not affiliated, associated, authorized, endorsed by, or in any way officially connected** with OpenClaw (formerly Moltbot) or any of its subsidiaries or its affiliates. The name OpenClaw as well as related names, marks, emblems, and images are registered trademarks of their respective owners.
 
 ## ⚠️ Disclaimer
 
-This tool performs read-only security audits and does not modify system configurations. Always test in a non-production environment first. The tool detects potential security issues but does not make judgments about your specific security requirements.
+This tool performs read-only security audits and does not modify system configurations. Always test in a non-production environment first. The tool detects potential security issues but does not make judgments about your specific security requirements. <br/>
+[Security Considerations](security.md) - What the audit detects and why
 
----
 
-Made with ❤️ for the OpenClaw community
+## 🤝 Contact & Support
+
+For security disclosures, enterprise support, or general inquiries, please reach out to the team:
+
+* 💌 **Email:** [hello@backslash.security](mailto:hello@backslash.security)
+* 🌐 **Website:** [backslash.security](https://backslash.security/)
+
+
+## 🩷 Acknowledgments
+
+* All the contributors making AI safer every day.
+* Maintained with ❤️ by the team at **Backslash Security**.
+* Special thanks to the security researchers documenting the evolution of autonomous agent persistence.
+* Don't forget to <strong> Vibe Safely! </strong>
+
+  <p align="center">
+    <img width="300" alt="Backslash Security" src="https://github.com/user-attachments/assets/b12edb57-6d0f-4070-8c52-142bc2d671a7" />
+    <img width="300" alt="Backslash Security" src="https://github.com/user-attachments/assets/b12edb57-6d0f-4070-8c52-142bc2d671a7" />
+  </p>
