@@ -85,35 +85,32 @@ jobs:
         shell: powershell
         run: |
           # Run script - accept exit codes 0, 1, or 2 (0=clean, 1=issues, 2=not installed)
-          $exitCode = 0
-          try {
-            .\claw-hunter.ps1 --json-path "$env:TEMP\smoke-test.json"
-          } catch {
-            $exitCode = $LASTEXITCODE
-          }
+          $ErrorActionPreference = "Continue"
+          .\claw-hunter.ps1 --json-path "$env:TEMP\smoke-test.json"
+          $exitCode = $LASTEXITCODE
           
           if (Test-Path "$env:TEMP\smoke-test.json") {
-            Write-Host "✓ Smoke test passed - JSON file created" -ForegroundColor Green
+            Write-Host "[PASS] Smoke test passed - JSON file created" -ForegroundColor Green
             
             # Validate JSON is well-formed
             try {
-              $json = Get-Content "$env:TEMP\smoke-test.json" | ConvertFrom-Json
-              Write-Host "✓ JSON is valid" -ForegroundColor Green
+              $json = Get-Content "$env:TEMP\smoke-test.json" -Raw | ConvertFrom-Json
+              Write-Host "[PASS] JSON is valid" -ForegroundColor Green
             } catch {
-              Write-Host "✗ JSON is invalid" -ForegroundColor Red
+              Write-Host "[FAIL] JSON is invalid" -ForegroundColor Red
               exit 1
             }
           } else {
-            Write-Host "✗ Smoke test failed - no JSON file created" -ForegroundColor Red
+            Write-Host "[FAIL] Smoke test failed - no JSON file created" -ForegroundColor Red
             exit 1
           }
           
           # Exit code 2 is OK (OpenClaw not installed in test environment)
           if ($exitCode -eq 0 -or $exitCode -eq 1 -or $exitCode -eq 2) {
-            Write-Host "✓ Script exit code is valid: $exitCode" -ForegroundColor Green
+            Write-Host "[PASS] Script exit code is valid: $exitCode" -ForegroundColor Green
             exit 0
           } else {
-            Write-Host "✗ Unexpected exit code: $exitCode" -ForegroundColor Red
+            Write-Host "[FAIL] Unexpected exit code: $exitCode" -ForegroundColor Red
             exit 1
           }
 
@@ -150,7 +147,7 @@ jobs:
           $results = Invoke-ScriptAnalyzer -Path .\claw-hunter.ps1 -Severity Warning,Error
           if ($results) {
             $results | Format-Table -AutoSize
-            Write-Host "⚠️ PSScriptAnalyzer found issues" -ForegroundColor Yellow
+            Write-Host "[WARN] PSScriptAnalyzer found issues" -ForegroundColor Yellow
           } else {
-            Write-Host "✓ PSScriptAnalyzer passed" -ForegroundColor Green
+            Write-Host "[PASS] PSScriptAnalyzer passed" -ForegroundColor Green
           }

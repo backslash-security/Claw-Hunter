@@ -163,7 +163,7 @@ function Get-AbsolutePath {
 
 function Write-Banner {
     Write-Host "==========================================" -ForegroundColor Cyan
-    Write-Host "🛡️  CLAW-HUNTER: WINDOWS" -ForegroundColor Cyan
+    Write-Host "[SECURITY]  CLAW-HUNTER: WINDOWS" -ForegroundColor Cyan
     Write-Host "    By Backslash Security" -ForegroundColor Gray
     Write-Host "    https://backslash.security" -ForegroundColor Gray
     Write-Host "==========================================" -ForegroundColor Cyan
@@ -625,7 +625,7 @@ if ($JsonPathSet -or $JsonToStdout) {
             }
             $jsonString | Set-Content -Path $JsonPath -Encoding UTF8
         } catch {
-            Write-Host "❌ Failed to write JSON output: $JsonPath" -ForegroundColor Red
+            Write-Host "[X] Failed to write JSON output: $JsonPath" -ForegroundColor Red
             Write-Host $_.Exception.Message -ForegroundColor DarkRed
             exit 1
         }
@@ -638,97 +638,97 @@ Write-Log -Level "INFO" -Message "Starting OpenClaw security audit"
 if (-not $MdmMode) {
     Write-Banner
     if ($JsonPathSet) {
-        Write-Line "📝 JSON output: $JsonPath" "Gray"
+        Write-Line "[NOTE] JSON output: $JsonPath" "Gray"
     }
 
-        Write-Section "Detection"
+    Write-Section "Detection"
     if ($results.cli_installed -or $results.config_exists -or (Test-Path $stateDir)) {
-        Write-Line "✅ State Dir: $($results.state_dir)" "Green"
+        Write-Line "[OK] State Dir: $($results.state_dir)" "Green"
         $cfgStatus = if ($results.config_exists) { "found" } else { "missing" }
-        Write-Line "✅ Config: $($results.config_path) ($cfgStatus)" "Green"
+        Write-Line "[OK] Config: $($results.config_path) ($cfgStatus)" "Green"
         if ($results.cli_installed) {
-            Write-Line "✅ CLI: $($results.cli_path) (v$($results.cli_version))" "Green"
+            Write-Line "[OK] CLI: $($results.cli_path) (v$($results.cli_version))" "Green"
         } else {
-            Write-Line "⚠️  CLI: not found in PATH/common locations" "Yellow"
+            Write-Line "[!]  CLI: not found in PATH/common locations" "Yellow"
         }
     } else {
-        Write-Line "❌ OpenClaw not detected on this system." "Gray"
+        Write-Line "[X] OpenClaw not detected on this system." "Gray"
     }
 
-        Write-Section "Network & Gateway"
+    Write-Section "Network and Gateway"
     if ($results.gateway_running) {
-        Write-Line "⚡ Gateway: ACTIVE (Port $($results.gateway_port) | PID: $($results.gateway_pid))" "Green"
+        Write-Line "[ACTIVE] Gateway: ACTIVE (Port $($results.gateway_port) | PID: $($results.gateway_pid))" "Green"
     } else {
-        Write-Line "💤 Gateway: INACTIVE (Expected Port $($results.gateway_port))" "Gray"
+        Write-Line "[INACTIVE] Gateway: INACTIVE (Expected Port $($results.gateway_port))" "Gray"
     }
     if ($results.gateway_bind_to_all) {
-        Write-Line "❗ RISK: Gateway bound to ALL interfaces (0.0.0.0) - network reachable" "Red"
+        Write-Line "[!!] RISK: Gateway bound to ALL interfaces (0.0.0.0) - network reachable" "Red"
     } elseif (-not [string]::IsNullOrWhiteSpace($results.gateway_listening_on)) {
-        Write-Line "✅ Gateway binding: $($results.gateway_listening_on)" "Green"
+        Write-Line "[OK] Gateway binding: $($results.gateway_listening_on)" "Green"
     }
     if ($results.gateway_token_set) {
-        Write-Line "✅ Gateway auth token: CONFIGURED" "Green"
+        Write-Line "[OK] Gateway auth token: CONFIGURED" "Green"
     } else {
-        Write-Line "⚠️  Gateway auth token: NOT SET" "Yellow"
+        Write-Line "[!]  Gateway auth token: NOT SET" "Yellow"
     }
 
-    Write-Section "Privileges & Tools"
+    Write-Section "Privileges and Tools"
     if ($results.risk_shell_access_enabled) {
-        Write-Line "❗ RISK: Shell Access ENABLED" "Red"
+        Write-Line "[!!] RISK: Shell Access ENABLED" "Red"
     } else {
-        Write-Line "✅ Shell Access: not flagged" "Green"
+        Write-Line "[OK] Shell Access: not flagged" "Green"
     }
     if ($results.risk_filesystem_write_enabled) {
-        Write-Line "❗ RISK: Filesystem Write ENABLED" "Red"
+        Write-Line "[!!] RISK: Filesystem Write ENABLED" "Red"
     } else {
-        Write-Line "✅ Filesystem Write: not flagged" "Green"
+        Write-Line "[OK] Filesystem Write: not flagged" "Green"
     }
 
-    Write-Section "Agents & Integrations"
-    Write-Line "🤖 Agents configured: $($results.agents_configured)" "Cyan"
+    Write-Section "Agents and Integrations"
+    Write-Line "[AGENT] Agents configured: $($results.agents_configured)" "Cyan"
     if (-not [string]::IsNullOrWhiteSpace($results.agents_list)) {
         Write-Line "  - $($results.agents_list)" "Gray"
     }
     if (-not [string]::IsNullOrWhiteSpace($results.default_agent_id)) {
-        Write-Line "⭐ Default agent: $($results.default_agent_id)" "Cyan"
+        Write-Line "[*] Default agent: $($results.default_agent_id)" "Cyan"
     }
-    Write-Line "🔌 Integrations enabled: $($results.integrations_count)" "Cyan"
+    Write-Line "[INTEGRATION] Integrations enabled: $($results.integrations_count)" "Cyan"
     if ($results.integrations_count -gt 0) {
-        Write-Line "  - $([string]::Join(',', $results.integrations_enabled))" "Gray"
+        Write-Line ("  - " + ($results.integrations_enabled -join ", ")) "Gray"
     }
     if ($results.registry_integrations_count -gt 0) {
-        Write-Line "🛠️  Registry integrations: $($results.registry_integrations_count)" "Cyan"
-        Write-Line "  - $([string]::Join(',', $results.registry_integrations))" "Gray"
+        Write-Line "[REGISTRY]  Registry integrations: $($results.registry_integrations_count)" "Cyan"
+        Write-Line ("  - " + ($results.registry_integrations -join ", ")) "Gray"
     }
     if ($results.credential_files_count -gt 0) {
-        Write-Line "🔐 Credential files: $($results.credential_files_count) found in credentials/" "Cyan"
+        Write-Line "[CREDENTIAL] Credential files: $($results.credential_files_count) found in credentials/" "Cyan"
     }
 
-    Write-Section "Plugins & Skills"
-    Write-Line "🧩 Plugins installed: $($results.plugins.total_count) (Global: $($results.plugins.global_count), Workspace: $($results.plugins.workspace_count))" "Cyan"
+    Write-Section "Plugins and Skills"
+    Write-Line "[PLUGIN] Plugins installed: $($results.plugins.total_count) (Global: $($results.plugins.global_count), Workspace: $($results.plugins.workspace_count))" "Cyan"
     if ($results.plugins.list.Count -gt 0) {
-        Write-Line "  - $([string]::Join(', ', $results.plugins.list))" "Gray"
+        Write-Line ("  - " + ($results.plugins.list -join ", ")) "Gray"
     }
-    Write-Line "🎯 Skills installed: $($results.skills.total_count) (Global: $($results.skills.global_count), Workspace: $($results.skills.workspace_count))" "Cyan"
+    Write-Line "[SKILL] Skills installed: $($results.skills.total_count) (Global: $($results.skills.global_count), Workspace: $($results.skills.workspace_count))" "Cyan"
     if ($results.skills.list.Count -gt 0) {
-        Write-Line "  - $([string]::Join(', ', $results.skills.list))" "Gray"
+        Write-Line ("  - " + ($results.skills.list -join ", ")) "Gray"
     }
 
     Write-Section "Secret/Credential Scan"
     if ($results.secrets_found -and $results.secrets_count -gt 0) {
-        Write-Line "❗ RISK: Potential secrets found in $($results.secrets_count) file(s)" "Red"
+        Write-Line "[!!] RISK: Potential secrets found in $($results.secrets_count) file(s)" "Red"
         foreach ($f in $results.secrets_files) {
             Write-Line "  [!] Secret found in: $f" "Magenta"
         }
     } else {
-        Write-Line "✅ No obvious secret patterns found (best-effort scan)" "Green"
+        Write-Line "[OK] No obvious secret patterns found (best-effort scan)" "Green"
     }
 
     Write-Section "Windows Service"
     if ($results.scheduled_task_exists) {
-        Write-Line "✅ Scheduled Task: configured ($($results.scheduled_task_name) | $($results.scheduled_task_status))" "Green"
+        Write-Line "[OK] Scheduled Task: configured ($($results.scheduled_task_name) | $($results.scheduled_task_status))" "Green"
     } else {
-        Write-Line "⚠️  Scheduled Task: not configured ($($results.scheduled_task_name))" "Yellow"
+        Write-Line "[!]  Scheduled Task: not configured ($($results.scheduled_task_name))" "Yellow"
     }
 }  # End MDM mode check
 
@@ -801,7 +801,7 @@ if ($JsonPathSet -or $JsonToStdout) {
             if ($MdmMode) {
                 Write-Error "Failed to write JSON output: $JsonPath"
             } else {
-                Write-Host "❌ Failed to write JSON output: $JsonPath" -ForegroundColor Red
+                Write-Host "[X] Failed to write JSON output: $JsonPath" -ForegroundColor Red
                 Write-Host $_.Exception.Message -ForegroundColor DarkRed
             }
             exit 3
@@ -879,7 +879,7 @@ if (-not $results.cli_installed -and -not $results.config_exists -and -not (Test
 if (-not $MdmMode) {
     if ($JsonPathSet) {
         Write-Host ""
-        Write-Host "✅ Results written to: $JsonPath" -ForegroundColor Green
+        Write-Host "[OK] Results written to: $JsonPath" -ForegroundColor Green
     }
 }
 

@@ -27,13 +27,13 @@ echo ""
 
 # Helper functions
 pass() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}[PASS]${NC} $1"
     TESTS_PASSED=$((TESTS_PASSED + 1))
     TESTS_RUN=$((TESTS_RUN + 1))
 }
 
 fail() {
-    echo -e "${RED}✗${NC} $1"
+    echo -e "${RED}[FAIL]${NC} $1"
     echo "  Expected: $2"
     echo "  Got: $3"
     TESTS_FAILED=$((TESTS_FAILED + 1))
@@ -41,7 +41,7 @@ fail() {
 }
 
 skip() {
-    echo -e "${YELLOW}⊘${NC} $1 (skipped)"
+    echo -e "${YELLOW}[SKIP]${NC} $1"
 }
 
 # Test 1: Script exists and is executable

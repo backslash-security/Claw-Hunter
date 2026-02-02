@@ -574,7 +574,7 @@ run_audit() {
     fi
 
     echo ""
-    echo "--- [ Network & Gateway ] ---"
+    echo "--- [ Network and Gateway ] ---"
     if [[ "$gateway_running" == "true" ]]; then
       echo "⚡ Gateway: ACTIVE (Port $gateway_port | PID: $gateway_pid)"
     else
@@ -592,7 +592,7 @@ run_audit() {
     fi
 
     echo ""
-    echo "--- [ Privileges & Tools ] ---"
+    echo "--- [ Privileges and Tools ] ---"
     if [[ "$risk_shell_access_enabled" == "true" ]]; then
       echo "❗ RISK: Shell Access ENABLED"
     else
@@ -605,7 +605,7 @@ run_audit() {
     fi
 
     echo ""
-    echo "--- [ Agents & Integrations ] ---"
+    echo "--- [ Agents and Integrations ] ---"
     echo "🤖 Agents configured: $agents_configured"
     [[ -n "$agents_list" ]] && echo "  - $agents_list"
     [[ -n "$default_agent_id" ]] && echo "⭐ Default agent: $default_agent_id"
@@ -620,7 +620,7 @@ run_audit() {
     fi
 
     echo ""
-    echo "--- [ Plugins & Skills ] ---"
+    echo "--- [ Plugins and Skills ] ---"
     echo "🧩 Plugins installed: $plugins_total_count (Global: $plugins_global_count, Workspace: $plugins_workspace_count)"
     [[ -n "$plugins_list_csv" ]] && echo "  - $plugins_list_csv"
     echo "🎯 Skills installed: $skills_total_count (Global: $skills_global_count, Workspace: $skills_workspace_count)"
