@@ -1,7 +1,7 @@
 <p align="center">
     <picture>
-        <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/f9c86720-e48d-4830-ab02-6db338895ff0" width="600">
-        <img src="https://github.com/user-attachments/assets/6dd7071d-2e77-4727-8c3d-4ba0ed66c922" alt="Hunter" width="600">
+        <source media="(prefers-color-scheme: light)" srcset="./claw-white.png" width="600">
+        <img src="./claw-black.png" alt="Hunter" width="600">
     </picture>
 </p>
 
@@ -26,8 +26,8 @@
 <p align="center">
   <a href="https://backslash.security/">
       <picture>
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/3545ac7f-80e6-4ebe-ace6-597864fda708" width="300">
-    <img width="300" alt="Backslash Security" src="https://github.com/user-attachments/assets/b6d255af-eed6-42fb-8b74-67cb4d99fd02" >
+    <source media="(prefers-color-scheme: light)" srcset="./icon-white.png" width="300">
+    <img width="300" alt="Backslash Security" src="./icon-black.png" >
   </picture>
   </a>
 </p>
