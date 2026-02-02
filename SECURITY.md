@@ -2,19 +2,12 @@
 
 **Claw-Hunter by [Backslash Security](https://backslash.security)**
 
-
-
-
-
 ## Supported Versions
 
 - ✅ Reads configuration files
 - ✅ Checks for running processes
-
-
 - ✅ Scans for potential secrets in text files
 - ✅ Reports security findings
-It does **NOT**:
 - ❌ Modify any system configurations
 - ❌ Change file permissions
 - ❌ Stop or start services
@@ -65,9 +58,8 @@ When deploying via MDM:
 ## Reporting a Vulnerability
 Backslash Security takes security seriously. If you discover a security vulnerability in Claw-Hunter, please follow responsible disclosure:
 **Contact Backslash Security:**
-- **Email**: security@backslash.security
+- **Email**: hello@backslash.security
 - **Website**: https://backslash.security/contact
-- **Subject Line**: "Claw-Hunter Security Issue"
 ### What Qualifies as a Security Issue
 - Execution of arbitrary code
 - Unauthorized file system modifications
@@ -83,7 +75,7 @@ Backslash Security takes security seriously. If you discover a security vulnerab
 ### How to Report
 **DO NOT** open a public GitHub issue for security vulnerabilities.
 Instead:
-1. **Email**: Send details to security@yourorg.com (replace with actual email)
+1. **Email**: Send details to hello@backslash.security
 2. **Include**:
    - Description of the vulnerability
    - Steps to reproduce
@@ -121,16 +113,16 @@ chown root:root /etc/openclaw-audit-key
 # Bad: World-readable key
 echo "your-api-key" > ~/api-key.txt  # Don't do this!
 ```
-### MDM Deployment
-# Good: Restricted script location
+## MDM Deployment
+### Good: Restricted script location
 /usr/local/bin/claw-hunter.sh  # Requires root to modify
-# Bad: User-writable location
+### Bad: User-writable location
 ~/scripts/claw-hunter.sh  # Any user can modify
-### Log File Security
-# Good: Restrict log access
+## Log File Security
+### Good: Restrict log access
 chmod 640 /var/log/claw-hunter.log
 chown root:adm /var/log/claw-hunter.log
-# Implement log rotation
+### Implement log rotation
 cat > /etc/logrotate.d/openclaw-audit << EOF
 /var/log/claw-hunter.log {
     weekly
@@ -139,7 +131,7 @@ cat > /etc/logrotate.d/openclaw-audit << EOF
     missingok
     notifempty
 }
-EOF
+
 ## Known Limitations
 1. **Secret Scanning**: Pattern-based detection may have false positives/negatives
 2. **Bash 3.2**: Limited regex capabilities compared to modern versions
@@ -151,20 +143,6 @@ All script executions can be logged:
 ./claw-hunter.sh --mdm --log-file /var/log/claw-hunter.log
 # Review audit trail
 grep "Starting OpenClaw security audit" /var/log/claw-hunter.log
-## Compliance
-This tool can help with:
-- CIS Benchmark compliance (custom checks)
-- Security posture assessment
-- Incident response (forensic data collection)
-It is NOT:
-- A compliance certification tool
-- A vulnerability scanner
-- A malware detector
-## Questions?
-For security-related questions:
-- **Security issues**: security@yourorg.com
-- **General questions**: [GitHub Discussions](https://github.com/yourorg/openclaw-audit/discussions)
-- **Feature requests**: [GitHub Issues](https://github.com/yourorg/openclaw-audit/issues)
----
+
 **Last Updated**: 2026-02-02  
 **Version**: 1.0.0
