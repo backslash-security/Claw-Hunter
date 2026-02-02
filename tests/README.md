@@ -50,6 +50,7 @@ cd tests/powershell
 8. **MDM Metadata**: Validates machine identification data
 9. **Security Summary**: Tests risk scoring calculation
 10. **Bash 3.2 Compatibility**: Ensures no associative arrays used
+11. **HTTP Upload**: Tests `--upload-url` flag, validates script uploads JSON to open endpoint (httpbin.org) and logs success
 
 ### PowerShell Test Suite (`tests/powershell/run-tests.ps1`)
 
@@ -63,6 +64,7 @@ cd tests/powershell
 8. **MDM Metadata**: Validates machine identification data
 9. **Security Summary**: Tests risk scoring calculation
 10. **PowerShell 5.1 Compatibility**: Checks for version-specific features
+11. **HTTP Upload**: Tests `--upload-url` flag, validates script uploads JSON to open endpoint (httpbin.org) and logs success
 
 ## Continuous Integration
 
@@ -125,12 +127,13 @@ Running tests...
 ✓ MDM metadata present
 ✓ Security summary is calculated
 ✓ No associative arrays used (Bash 3.2 compatible)
+✓ HTTP upload successful (script uploaded via --upload-url, HTTP 200)
 
 ==================================
 Test Results
 ==================================
-Tests run: 10
-Passed: 10
+Tests run: 11
+Passed: 11
 
 All tests passed!
 ```
@@ -144,8 +147,8 @@ All tests passed!
 ==================================
 Test Results
 ==================================
-Tests run: 10
-Passed: 9
+Tests run: 11
+Passed: 10
 Failed: 1
 
 Some tests failed

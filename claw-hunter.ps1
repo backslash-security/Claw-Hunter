@@ -7,7 +7,7 @@
 # Copyright (c) 2024 Backslash Security
 #
 # Usage:
-#   .\claw-hunter.ps1 [--json] [--json-path <file>] [--mdm] [--upload-url <url>] [--api-key-file <file>]
+#   .\claw-hunter.ps1 [--json] [--json-path <file>] [--mdm] [--upload-url <url>]
 #
 # Notes:
 # - Use --json to print JSON to terminal or --json-path to save to a file.
@@ -24,7 +24,6 @@ $JsonPath = ""
 $JsonPathSet = $false
 $MdmMode = $false
 $UploadUrl = ""
-$ApiKeyFile = ""
 $LogFile = ""
 $Help = $false
 
@@ -33,14 +32,13 @@ function Show-Usage {
 Claw-Hunter - Windows
 
 Usage:
-  .\discover.ps1 [--json] [--json-path <file>] [--mdm] [--upload-url <url>] [--api-key-file <file>]
+  .\discover.ps1 [--json] [--json-path <file>] [--mdm] [--upload-url <url>]
 
 Options:
   --json                   Print JSON output to terminal (stdout)
   --json-path <file>       Save JSON results to this file path
   --mdm                    MDM mode: silent execution, JSON to standard location, proper exit codes
   --upload-url <url>       Upload JSON results to this URL (requires --mdm or --json-path)
-  --api-key-file <file>    File containing API key for upload authentication
   --log-file <file>        Write logs to this file (default: C:\ProgramData\claw-hunter.log in MDM mode)
   -h, --help               Show help
 
@@ -96,18 +94,6 @@ for ($i = 0; $i -lt $args.Count; $i++) {
     if ($a -match '^(--upload-url|-upload-url)$') {
         if (($i + 1) -ge $args.Count) { throw "Missing value for $a" }
         $UploadUrl = [string]$args[$i + 1]
-        $i++
-        continue
-    }
-
-    if ($a -match '^(--api-key-file=|-api-key-file=)(.+)$') {
-        $ApiKeyFile = $Matches[2]
-        continue
-    }
-
-    if ($a -match '^(--api-key-file|-api-key-file)$') {
-        if (($i + 1) -ge $args.Count) { throw "Missing value for $a" }
-        $ApiKeyFile = [string]$args[$i + 1]
         $i++
         continue
     }
@@ -830,15 +816,6 @@ if (-not [string]::IsNullOrWhiteSpace($UploadUrl)) {
     try {
         $headers = @{
             "Content-Type" = "application/json"
-        }
-        
-        # Add API key if provided
-        if (-not [string]::IsNullOrWhiteSpace($ApiKeyFile) -and (Test-Path $ApiKeyFile)) {
-            $apiKey = (Get-Content -Path $ApiKeyFile -Raw -ErrorAction Stop).Trim()
-            if (-not [string]::IsNullOrWhiteSpace($apiKey)) {
-                $headers["Authorization"] = "Bearer $apiKey"
-                Write-Log -Level "INFO" -Message "Using API key from: $ApiKeyFile"
-            }
         }
         
         $response = Invoke-WebRequest -Uri $UploadUrl -Method Post -Body $jsonString -Headers $headers -UseBasicParsing -ErrorAction Stop

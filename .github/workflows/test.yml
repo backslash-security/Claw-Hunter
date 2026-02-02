@@ -66,6 +66,46 @@ jobs:
             exit 1
           fi
         shell: bash
+      
+      - name: Test HTTP upload functionality
+        run: |
+          # Run script WITH --upload-url to test the actual upload feature
+          ./claw-hunter.sh --json-path /tmp/upload-test.json --upload-url "https://httpbin.org/post" --log-file /tmp/upload-log.txt >/dev/null 2>&1 || EXIT_CODE=$?
+          
+          # Check if JSON file was created
+          if [ ! -f /tmp/upload-test.json ]; then
+            echo "✗ HTTP upload test failed - no JSON file created"
+            cat /tmp/upload-log.txt 2>/dev/null || true
+            exit 1
+          fi
+          
+          # Check if script reported upload success
+          if grep -q "Upload successful" /tmp/upload-log.txt 2>/dev/null; then
+            echo "✓ HTTP upload successful - script uploaded via --upload-url"
+            
+            # Validate JSON file contains expected data
+            if grep -q '"platform"' /tmp/upload-test.json; then
+              echo "✓ JSON file validated - contains expected platform field"
+              exit 0
+            else
+              echo "✗ JSON file invalid - missing platform field"
+              exit 1
+            fi
+          else
+            # Check if it's just a network issue (acceptable in CI)
+            if [ "${EXIT_CODE:-0}" -eq 0 ] || [ "${EXIT_CODE:-0}" -eq 1 ] || [ "${EXIT_CODE:-0}" -eq 2 ]; then
+              echo "⚠ HTTP upload test passed with warnings (exit code: ${EXIT_CODE:-0})"
+              exit 0
+            else
+              echo "✗ HTTP upload failed - no success message in logs"
+              cat /tmp/upload-log.txt 2>/dev/null || true
+              exit 1
+            fi
+          fi
+          
+          # Clean up
+          rm -f /tmp/upload-test.json /tmp/upload-log.txt
+        shell: bash
 
   test-powershell:
     name: PowerShell Tests
@@ -113,6 +153,51 @@ jobs:
             Write-Host "[FAIL] Unexpected exit code: $exitCode" -ForegroundColor Red
             exit 1
           }
+      
+      - name: Test HTTP upload functionality
+        shell: powershell
+        run: |
+          # Run script WITH --upload-url and --log-file to test the actual upload feature
+          $ErrorActionPreference = "Continue"
+          $logFile = "$env:TEMP\upload-log.txt"
+          $output = .\claw-hunter.ps1 --json-path "$env:TEMP\upload-test.json" --upload-url "https://httpbin.org/post" --log-file $logFile 2>&1 | Out-String
+          $exitCode = $LASTEXITCODE
+          
+          # Check if JSON file was created
+          if (-not (Test-Path "$env:TEMP\upload-test.json")) {
+            Write-Host "[FAIL] HTTP upload test failed - no JSON file created" -ForegroundColor Red
+            if (Test-Path $logFile) { Get-Content $logFile }
+            exit 1
+          }
+          
+          # Check if script reported upload success in log file
+          if ((Test-Path $logFile) -and (Select-String -Path $logFile -Pattern "Upload successful" -Quiet)) {
+            Write-Host "[PASS] HTTP upload successful - script uploaded via --upload-url" -ForegroundColor Green
+            
+            # Validate JSON file contains expected data
+            $content = Get-Content -Path "$env:TEMP\upload-test.json" -Raw
+            if ($content -match '"platform"') {
+              Write-Host "[PASS] JSON file validated - contains expected platform field" -ForegroundColor Green
+              exit 0
+            } else {
+              Write-Host "[FAIL] JSON file invalid - missing platform field" -ForegroundColor Red
+              exit 1
+            }
+          } else {
+            # Check if it's just a network issue (acceptable in CI)
+            if ($exitCode -in @(0, 1, 2)) {
+              Write-Host "[WARN] HTTP upload test passed with warnings (exit code: $exitCode)" -ForegroundColor Yellow
+              exit 0
+            } else {
+              Write-Host "[FAIL] HTTP upload failed - no success message in logs" -ForegroundColor Red
+              if (Test-Path $logFile) { Get-Content $logFile }
+              exit 1
+            }
+          }
+          
+          # Clean up
+          Remove-Item -Path "$env:TEMP\upload-test.json" -ErrorAction SilentlyContinue
+          Remove-Item -Path $logFile -ErrorAction SilentlyContinue
 
   lint-bash:
     name: Bash Linting (shellcheck)

@@ -3,7 +3,7 @@
 # https://backslash.security
 #
 # Usage:
-#   ./claw-hunter.sh [--json] [--json-path <file>] [--mdm] [--upload-url <url>] [--api-key-file <file>]
+#   ./claw-hunter.sh [--json] [--json-path <file>] [--mdm] [--upload-url <url>]
 #
 # Notes:
 # - Use --json to print JSON to terminal or --json-path to save to a file.
@@ -16,7 +16,6 @@ JSON_PATH=""
 JSON_PATH_SET=false
 MDM_MODE=false
 UPLOAD_URL=""
-API_KEY_FILE=""
 LOG_FILE=""
 
 usage() {
@@ -24,14 +23,13 @@ usage() {
 Claw-Hunter
 
 Usage:
-  ./claw-hunter.sh [--json] [--json-path <file>] [--mdm] [--upload-url <url>] [--api-key-file <file>]
+  ./claw-hunter.sh [--json] [--json-path <file>] [--mdm] [--upload-url <url>]
 
 Options:
   --json                   Print JSON output to terminal (stdout)
   --json-path <file>       Save JSON results to this file path
   --mdm                    MDM mode: silent execution, JSON to standard location, proper exit codes
   --upload-url <url>       Upload JSON results to this URL (requires --mdm or --json-path)
-  --api-key-file <file>    File containing API key for upload authentication
   --log-file <file>        Write logs to this file (default: /var/log/claw-hunter.log in MDM mode)
   -h, --help               Show help
 
@@ -72,14 +70,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --upload-url=*)
       UPLOAD_URL="${1#*=}"
-      shift 1
-      ;;
-    --api-key-file)
-      API_KEY_FILE="${2:-}"
-      shift 2
-      ;;
-    --api-key-file=*)
-      API_KEY_FILE="${1#*=}"
       shift 1
       ;;
     --log-file)
@@ -925,16 +915,6 @@ run_audit() {
     log_msg "INFO" "Uploading results to: $UPLOAD_URL"
     
     local curl_opts=(-X POST -H "Content-Type: application/json" -d "$json")
-    
-    # Add API key if provided
-    if [[ -n "$API_KEY_FILE" && -f "$API_KEY_FILE" ]]; then
-      local api_key
-      api_key="$(cat "$API_KEY_FILE" 2>/dev/null | tr -d '\n\r')"
-      if [[ -n "$api_key" ]]; then
-        curl_opts+=(-H "Authorization: Bearer $api_key")
-        log_msg "INFO" "Using API key from: $API_KEY_FILE"
-      fi
-    fi
     
     if command -v curl &>/dev/null; then
       local upload_response

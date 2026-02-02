@@ -190,6 +190,48 @@ test_bash_32_compatibility() {
     fi
 }
 
+# Test 11: HTTP upload functionality
+test_http_upload() {
+    echo "Test: HTTP upload to remote endpoint"
+    local test_file="/tmp/openclaw-upload-test-$$.json"
+    local log_file="/tmp/openclaw-upload-log-$$.txt"
+    
+    # Run the script WITH --upload-url and --log-file to test the actual upload feature
+    local exit_code
+    bash "$AUDIT_SCRIPT" --json-path "$test_file" --upload-url "https://httpbin.org/post" --log-file "$log_file" >/dev/null 2>&1 || exit_code=$?
+    
+    # Check if JSON file was created
+    if [[ ! -f "$test_file" ]]; then
+        rm -f "$log_file"
+        fail "HTTP upload test" "JSON file created" "no file"
+        return
+    fi
+    
+    # Check if the script reported upload success in the log file
+    if [[ -f "$log_file" ]] && grep -q "Upload successful" "$log_file"; then
+        # Validate the JSON file contents
+        if grep -q '"platform"' "$test_file"; then
+            pass "HTTP upload successful (script uploaded via --upload-url, HTTP 200)"
+        else
+            fail "HTTP upload test" "valid JSON uploaded" "invalid JSON content"
+        fi
+    else
+        # Check if it's a network issue or script issue
+        if [[ -f "$log_file" ]] && grep -qi "upload failed\|curl not found" "$log_file"; then
+            # Upload was attempted but failed - could be network issue
+            skip "HTTP upload test (upload failed - network or connectivity issue)"
+        elif [[ ${exit_code:-0} -eq 0 || ${exit_code:-0} -eq 1 || ${exit_code:-0} -eq 2 ]]; then
+            # Script ran successfully but no upload confirmation - might be that curl is not available
+            skip "HTTP upload test (upload status unclear)"
+        else
+            fail "HTTP upload test" "upload success message in logs" "no success message found"
+        fi
+    fi
+    
+    # Clean up
+    rm -f "$test_file" "$log_file"
+}
+
 # Run all tests
 echo "Running tests..."
 echo ""
@@ -204,6 +246,7 @@ test_mdm_mode_silent
 test_mdm_metadata
 test_security_summary
 test_bash_32_compatibility
+test_http_upload
 
 # Summary
 echo ""

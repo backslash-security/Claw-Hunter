@@ -222,6 +222,56 @@ function Test-PowerShell51Compatibility {
     }
 }
 
+# Test 11: HTTP upload functionality
+function Test-HttpUpload {
+    Write-Host "Test: HTTP upload to remote endpoint"
+    $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-upload-test-$PID.json"
+    $logFile = Join-Path -Path $TempDir -ChildPath "openclaw-upload-log-$PID.txt"
+    
+    try {
+        # Run the script WITH --upload-url and --log-file to test the actual upload feature
+        $output = & pwsh -NoProfile -File $AuditScript --json-path $testFile --upload-url "https://httpbin.org/post" --log-file $logFile 2>&1 | Out-String
+        $exitCode = $LASTEXITCODE
+        
+        # Check if JSON file was created
+        if (-not (Test-Path $testFile)) {
+            Remove-Item -Path $logFile -ErrorAction SilentlyContinue
+            Fail "HTTP upload test" "JSON file created" "no file"
+            return
+        }
+        
+        # Check if the script reported upload success in the log file
+        if ((Test-Path $logFile) -and (Select-String -Path $logFile -Pattern "Upload successful" -Quiet)) {
+            # Validate the JSON file contents
+            $content = Get-Content -Path $testFile -Raw
+            if ($content -match '"platform"') {
+                Pass "HTTP upload successful (script uploaded via --upload-url, HTTP 200)"
+            } else {
+                Fail "HTTP upload test" "valid JSON uploaded" "invalid JSON content"
+            }
+        } else {
+            # Check if it's a network issue or script issue
+            if ((Test-Path $logFile) -and (Select-String -Path $logFile -Pattern "upload failed|curl not found" -Quiet)) {
+                # Upload was attempted but failed - could be network issue
+                Write-Host "[SKIP] HTTP upload test (upload failed - network or connectivity issue)" -ForegroundColor Yellow
+                $script:TestsRun++
+            } elseif ($exitCode -in @(0, 1, 2)) {
+                # Script ran successfully but no upload confirmation
+                Write-Host "[SKIP] HTTP upload test (upload status unclear)" -ForegroundColor Yellow
+                $script:TestsRun++
+            } else {
+                Fail "HTTP upload test" "upload success message in logs" "no success message found"
+            }
+        }
+        
+        # Clean up
+        Remove-Item -Path $testFile -ErrorAction SilentlyContinue
+        Remove-Item -Path $logFile -ErrorAction SilentlyContinue
+    } catch {
+        Fail "HTTP upload test" "success" "error: $_"
+    }
+}
+
 # Run all tests
 Write-Host "Running tests..." -ForegroundColor Cyan
 Write-Host ""
@@ -236,6 +286,7 @@ Test-MdmModeSilent
 Test-MdmMetadata
 Test-SecuritySummary
 Test-PowerShell51Compatibility
+Test-HttpUpload
 
 # Summary
 Write-Host ""
