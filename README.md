@@ -1,7 +1,7 @@
 <p align="center">
     <picture>
-        <source media="(prefers-color-scheme: light)" srcset="./claw-white.png" width="600">
-        <img src="./claw-black.png" alt="Hunter" width="600">
+        <source media="(prefers-color-scheme: light)" srcset="./claw-white.png" width="600" alt="Claw Hunter">
+        <img src="./claw-black.png" alt="Claw Hunter" width="600">
     </picture>
 </p>
 
