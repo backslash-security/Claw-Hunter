@@ -79,28 +79,28 @@ In the 2026 landscape, autonomous agents like OpenClaw operate as high-privilege
 **macOS/Linux:**
 ```bash
 # Download and run
-curl -O https://raw.githubusercontent.com/yourorg/openclaw-audit/main/openclaw-audit.sh
-chmod +x openclaw-audit.sh
-./openclaw-audit.sh
+curl -O  https://raw.githubusercontent.com/backslash-security/Claw-Hunter/main/claw-hunter.sh
+chmod +x claw-hunter.sh
+./claw-hunter.sh
 ```
 
 **Windows:**
 ```powershell
 # Download and run
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/yourorg/openclaw-audit/main/openclaw-audit.ps1 -OutFile openclaw-audit.ps1
-.\openclaw-audit.ps1
+Invoke-WebRequest -Uri  https://raw.githubusercontent.com/backslash-security/Claw-Hunter/main/claw-hunter.ps1 -OutFile claw-hunter.ps1
+.\claw-hunter.ps1
 ```
 
 ### MDM Deployment (Automated)
 
 **Jamf Pro (macOS):**
 ```bash
-sudo /path/to/openclaw-audit.sh --mdm --upload-url https://your-api.com/audits --api-key-file /etc/openclaw-key
+sudo /path/to/claw-hunter.sh --mdm --upload-url https://your-api.com/audits --api-key-file /etc/openclaw-key
 ```
 
 **Microsoft Intune (Windows):**
 ```powershell
-.\openclaw-audit.ps1 --mdm --upload-url https://your-api.com/audits
+.\claw-hunter.ps1 --mdm --upload-url https://your-api.com/audits
 ```
 
 See [MDM Deployment Guides](docs/mdm-guides/) for platform-specific instructions.
@@ -110,7 +110,7 @@ See [MDM Deployment Guides](docs/mdm-guides/) for platform-specific instructions
 ### Command-Line Options
 
 ```bash
-./openclaw-audit.sh [OPTIONS]
+./claw-hunter.sh [OPTIONS]
 
 Options:
   --json                   Print JSON output to terminal (stdout)
@@ -124,7 +124,7 @@ Options:
 MDM Mode:
   Silent execution designed for automated deployment via MDM platforms.
   - Suppresses terminal output (errors go to stderr)
-  - Writes JSON to /var/log/openclaw-audit.json (Unix) or C:\ProgramData\openclaw-audit.json (Windows)
+  - Writes JSON to /var/log/claw-hunter.json (Unix) or C:\ProgramData\claw-hunter.json (Windows)
   - Logs to corresponding .log file
   - Returns proper exit codes for automation
 ```
@@ -133,19 +133,19 @@ MDM Mode:
 
 ```bash
 # Interactive mode with terminal output
-./openclaw-audit.sh
+./claw-hunter.sh
 
 # Save results to JSON file
-./openclaw-audit.sh --json-path /tmp/audit-results.json
+./claw-hunter.sh --json-path /tmp/audit-results.json
 
 # Print JSON to stdout
-./openclaw-audit.sh --json
+./claw-hunter.sh --json
 
 # MDM deployment with upload
-sudo ./openclaw-audit.sh --mdm --upload-url https://api.example.com/audits --api-key-file /etc/audit-key
+sudo ./claw-hunter.sh --mdm --upload-url https://api.example.com/audits --api-key-file /etc/audit-key
 
 # MDM with custom paths
-sudo ./openclaw-audit.sh --mdm --json-path /custom/audit.json --log-file /var/log/custom.log
+sudo ./claw-hunter.sh --mdm --json-path /custom/audit.json --log-file /var/log/custom.log
 ```
 
 ## 📊 Output Format
