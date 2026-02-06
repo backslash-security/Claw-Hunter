@@ -247,6 +247,8 @@ For security disclosures, enterprise support, or general inquiries, please reach
 
 * 🌐 **Website:** [backslash.security](https://backslash.security/)
 
+* 💌 **Email:** support@backslash.security
+
 
 ## 🩷 Acknowledgments
 
