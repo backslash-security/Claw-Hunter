@@ -18,6 +18,19 @@ Write-Host "Claw-Hunter - PowerShell Test Suite" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host ""
 
+# Detect available PowerShell executable
+$PowerShellExe = if (Get-Command pwsh -ErrorAction SilentlyContinue) {
+    "pwsh"
+} elseif (Get-Command powershell -ErrorAction SilentlyContinue) {
+    "powershell"
+} else {
+    Write-Host "[ERROR] No PowerShell executable found (pwsh or powershell)" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Using PowerShell: $PowerShellExe" -ForegroundColor Gray
+Write-Host ""
+
 # Cross-platform temp directory
 $TempDir = if ($env:TEMP) { $env:TEMP } elseif ($env:TMPDIR) { $env:TMPDIR } else { "/tmp" }
 
@@ -56,7 +69,7 @@ function Test-ScriptExists {
 function Test-HelpFlag {
     Write-Host "Test: --help flag displays usage"
     try {
-        $output = & pwsh -NoProfile -File $AuditScript --help 2>&1 | Out-String
+        $output = & $PowerShellExe -NoProfile -File $AuditScript --help 2>&1 | Out-String
         if ($output -match "Usage:") {
             Pass "Help flag works"
         } else {
@@ -71,7 +84,7 @@ function Test-HelpFlag {
 function Test-InvalidFlag {
     Write-Host "Test: Invalid flag returns error"
     try {
-        $output = & pwsh -NoProfile -File $AuditScript --invalid-flag 2>&1 | Out-String
+        $output = & $PowerShellExe -NoProfile -File $AuditScript --invalid-flag 2>&1 | Out-String
         if ($output -match "Unknown argument") {
             Pass "Invalid flag returns error"
         } else {
@@ -86,7 +99,7 @@ function Test-InvalidFlag {
 function Test-JsonOutput {
     Write-Host "Test: --json flag creates valid JSON"
     try {
-        $output = & pwsh -NoProfile -File $AuditScript --json 2>&1 | Out-String
+        $output = & $PowerShellExe -NoProfile -File $AuditScript --json 2>&1 | Out-String
         if ($output -match '"platform"') {
             try {
                 $jsonPart = $output -split "JSON OUTPUT:" | Select-Object -Last 1
@@ -110,7 +123,7 @@ function Test-JsonFileOutput {
     $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-test-$PID.json"
     
     try {
-        & pwsh -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         
         if (Test-Path $testFile) {
             $content = Get-Content -Path $testFile -Raw
@@ -134,7 +147,7 @@ function Test-ExitCodes {
     $testFile = Join-Path -Path $TempDir -ChildPath "test-exit-$PID.json"
     
     try {
-        & pwsh -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         $exitCode = $LASTEXITCODE
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
@@ -163,7 +176,7 @@ function Test-ExitCodeNotInstalled {
         $env:USERPROFILE = $tempHome
         $env:PATH = "C:\Windows\System32;C:\Windows"
         
-        & pwsh -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         $exitCode = $LASTEXITCODE
         
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
@@ -187,7 +200,7 @@ function Test-ExitCodeClean {
     $testFile = Join-Path -Path $TempDir -ChildPath "test-clean-$PID.json"
     
     try {
-        & pwsh -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         $exitCode = $LASTEXITCODE
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
@@ -212,7 +225,7 @@ function Test-MdmModeSilent {
     $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-mdm-test-$PID.json"
     
     try {
-        $output = & pwsh -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-String
+        $output = & $PowerShellExe -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-String
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
         $lineCount = ($output -split "`n").Count
@@ -234,7 +247,7 @@ function Test-MdmMetadata {
     $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-mdm-meta-$PID.json"
     
     try {
-        & pwsh -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-Null
+        & $PowerShellExe -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-Null
         
         if (Test-Path $testFile) {
             $content = Get-Content -Path $testFile -Raw
@@ -256,7 +269,7 @@ function Test-MdmMetadata {
 function Test-SecuritySummary {
     Write-Host "Test: Security summary is calculated"
     try {
-        $output = & pwsh -NoProfile -File $AuditScript --json 2>&1 | Out-String
+        $output = & $PowerShellExe -NoProfile -File $AuditScript --json 2>&1 | Out-String
         if ($output -match '"security_summary"' -and $output -match '"risk_level"') {
             Pass "Security summary is calculated"
         } else {
@@ -288,7 +301,7 @@ function Test-HttpUpload {
     
     try {
         # Run the script WITH --upload-url and --log-file to test the actual upload feature
-        $output = & pwsh -NoProfile -File $AuditScript --json-path $testFile --upload-url "https://httpbin.org/post" --log-file $logFile 2>&1 | Out-String
+        $output = & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile --upload-url "https://httpbin.org/post" --log-file $logFile 2>&1 | Out-String
         $exitCode = $LASTEXITCODE
         
         # Check if JSON file was created
