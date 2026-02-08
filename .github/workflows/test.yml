@@ -40,7 +40,7 @@ jobs:
       
       - name: Run smoke test
         run: |
-          # Run script - should exit 0 for success
+          # Run script - should exit 0 (clean), 1 (issues), or 2 (not installed)
           ./claw-hunter.sh --json-path /tmp/smoke-test.json || EXIT_CODE=$?
           
           if [ -f /tmp/smoke-test.json ]; then
@@ -57,9 +57,15 @@ jobs:
             exit 1
           fi
           
-          # Script should exit 0 for success
+          # Script should exit 0 (clean), 1 (issues), or 2 (not installed)
           if [ "${EXIT_CODE:-0}" -eq 0 ]; then
-            echo "✓ Script exit code is valid: ${EXIT_CODE:-0}"
+            echo "✓ Script exit code 0 (clean system)"
+            exit 0
+          elif [ "${EXIT_CODE:-0}" -eq 1 ]; then
+            echo "✓ Script exit code 1 (security issues detected)"
+            exit 0
+          elif [ "${EXIT_CODE:-0}" -eq 2 ]; then
+            echo "✓ Script exit code 2 (not installed)"
             exit 0
           else
             echo "✗ Unexpected exit code: ${EXIT_CODE:-0}"
@@ -124,7 +130,7 @@ jobs:
       - name: Run smoke test
         shell: powershell
         run: |
-          # Run script - should exit 0 for success
+          # Run script - should exit 0 (clean), 1 (issues), or 2 (not installed)
           $ErrorActionPreference = "Continue"
           .\claw-hunter.ps1 --json-path "$env:TEMP\smoke-test.json"
           $exitCode = $LASTEXITCODE
@@ -145,9 +151,15 @@ jobs:
             exit 1
           }
           
-          # Script should exit 0 for success
+          # Script should exit 0 (clean), 1 (issues), or 2 (not installed)
           if ($exitCode -eq 0) {
-            Write-Host "[PASS] Script exit code is valid: $exitCode" -ForegroundColor Green
+            Write-Host "[PASS] Script exit code 0 (clean system)" -ForegroundColor Green
+            exit 0
+          } elseif ($exitCode -eq 1) {
+            Write-Host "[PASS] Script exit code 1 (security issues detected)" -ForegroundColor Green
+            exit 0
+          } elseif ($exitCode -eq 2) {
+            Write-Host "[PASS] Script exit code 2 (not installed)" -ForegroundColor Green
             exit 0
           } else {
             Write-Host "[FAIL] Unexpected exit code: $exitCode" -ForegroundColor Red

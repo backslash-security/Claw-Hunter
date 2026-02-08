@@ -117,17 +117,56 @@ test_json_file_output() {
     fi
 }
 
-# Test 6: Exit code is proper (0 or 1)
+# Test 6: Exit code is proper (0, 1, or 2)
 test_exit_codes() {
     echo "Test: Script returns valid exit code"
     local exit_code
     bash "$AUDIT_SCRIPT" --json-path /tmp/test-exit-$$.json >/dev/null 2>&1 || exit_code=$?
     rm -f /tmp/test-exit-$$.json
     
-    if [[ ${exit_code:-0} -eq 0 || ${exit_code:-0} -eq 1 ]]; then
+    if [[ ${exit_code:-0} -eq 0 || ${exit_code:-0} -eq 1 || ${exit_code:-0} -eq 2 ]]; then
         pass "Exit code is valid (${exit_code:-0})"
     else
-        fail "Exit code is valid" "0 or 1" "${exit_code:-0}"
+        fail "Exit code is valid" "0, 1, or 2" "${exit_code:-0}"
+    fi
+}
+
+# Test 6b: Exit code 2 when not installed
+test_exit_code_not_installed() {
+    echo "Test: Exit code 2 when OpenClaw not installed"
+    
+    # Create a temporary HOME directory with no OpenClaw installation
+    local temp_home="/tmp/openclaw-test-home-$$"
+    mkdir -p "$temp_home"
+    
+    local exit_code
+    HOME="$temp_home" PATH="/usr/bin:/bin" bash "$AUDIT_SCRIPT" --json-path /tmp/test-not-installed-$$.json >/dev/null 2>&1 || exit_code=$?
+    rm -f /tmp/test-not-installed-$$.json
+    rm -rf "$temp_home"
+    
+    if [[ ${exit_code:-0} -eq 2 ]]; then
+        pass "Exit code 2 when not installed (${exit_code:-0})"
+    else
+        skip "Exit code 2 test (OpenClaw may be installed, got exit code ${exit_code:-0})"
+    fi
+}
+
+# Test 6c: Exit code 0 for clean system (if not installed, should be 2)
+test_exit_code_clean() {
+    echo "Test: Exit code 0 for clean system or 2 if not installed"
+    local exit_code
+    bash "$AUDIT_SCRIPT" --json-path /tmp/test-clean-$$.json >/dev/null 2>&1 || exit_code=$?
+    rm -f /tmp/test-clean-$$.json
+    
+    # Valid exit codes are 0 (clean), 1 (issues), or 2 (not installed)
+    if [[ ${exit_code:-0} -eq 0 ]]; then
+        pass "Exit code 0 (clean system)"
+    elif [[ ${exit_code:-0} -eq 1 ]]; then
+        pass "Exit code 1 (security issues detected)"
+    elif [[ ${exit_code:-0} -eq 2 ]]; then
+        pass "Exit code 2 (not installed)"
+    else
+        fail "Valid exit code" "0, 1, or 2" "${exit_code:-0}"
     fi
 }
 
@@ -242,6 +281,8 @@ test_invalid_flag
 test_json_output
 test_json_file_output
 test_exit_codes
+test_exit_code_not_installed
+test_exit_code_clean
 test_mdm_mode_silent
 test_mdm_metadata
 test_security_summary

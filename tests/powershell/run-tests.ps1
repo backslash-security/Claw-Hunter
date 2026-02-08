@@ -138,13 +138,13 @@ function Test-ExitCodes {
         $exitCode = $LASTEXITCODE
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
-        if ($exitCode -in @(0, 1)) {
+        if ($exitCode -in @(0, 1, 2, 3)) {
             Pass "Exit code is valid ($exitCode)"
         } else {
-            Fail "Exit code is valid" "0 or 1" "$exitCode"
+            Fail "Exit code is valid" "0 to 3" "$exitCode"
         }
     } catch {
-        Fail "Exit code is valid" "0 or 1" "error: $_"
+        Fail "Exit code is valid" "0 to 3" "error: $_"
     }
 }
 

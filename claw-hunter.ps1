@@ -836,6 +836,24 @@ if (-not [string]::IsNullOrWhiteSpace($UploadUrl)) {
     }
 }
 
+# Determine exit code based on findings
+$exitCode = 0
+
+# Check if OpenClaw is installed (CLI, config, or state dir exists)
+if (-not $results.cli_installed -and -not $results.config_exists -and -not (Test-Path $stateDir)) {
+    $exitCode = 2  # Not installed
+    Write-Log -Level "INFO" -Message "OpenClaw not installed (exit code 2)"
+} elseif ($riskLevel -eq "critical") {
+    $exitCode = 1  # Critical issues found
+    Write-Log -Level "INFO" -Message "Critical security issues found (exit code 1)"
+} elseif ($riskLevel -eq "warning") {
+    $exitCode = 1  # Warnings found
+    Write-Log -Level "INFO" -Message "Security warnings found (exit code 1)"
+} else {
+    $exitCode = 0  # Clean
+    Write-Log -Level "INFO" -Message "No issues detected (exit code 0)"
+}
+
 # Script completed successfully
 Write-Log -Level "INFO" -Message "Audit completed successfully"
 
@@ -843,9 +861,9 @@ Write-Log -Level "INFO" -Message "Audit completed successfully"
 if (-not $MdmMode) {
     if ($JsonPathSet) {
         Write-Host ""
-        Write-Host "[OK] Results written to: $JsonPath" -ForegroundColor Green
+        Write-Host "✅ Results written to: $JsonPath" -ForegroundColor Green
     }
 }
 
-exit 0
+exit $exitCode
 
