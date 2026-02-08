@@ -69,7 +69,7 @@ function Test-ScriptExists {
 function Test-HelpFlag {
     Write-Host "Test: --help flag displays usage"
     try {
-        $output = & $PowerShellExe -NoProfile -File $AuditScript --help 2>&1 | Out-String
+        $output = & $script:PowerShellExe -NoProfile -File $AuditScript --help 2>&1 | Out-String
         if ($output -match "Usage:") {
             Pass "Help flag works"
         } else {
@@ -84,7 +84,7 @@ function Test-HelpFlag {
 function Test-InvalidFlag {
     Write-Host "Test: Invalid flag returns error"
     try {
-        $output = & $PowerShellExe -NoProfile -File $AuditScript --invalid-flag 2>&1 | Out-String
+        $output = & $script:PowerShellExe -NoProfile -File $AuditScript --invalid-flag 2>&1 | Out-String
         if ($output -match "Unknown argument") {
             Pass "Invalid flag returns error"
         } else {
@@ -99,7 +99,7 @@ function Test-InvalidFlag {
 function Test-JsonOutput {
     Write-Host "Test: --json flag creates valid JSON"
     try {
-        $output = & $PowerShellExe -NoProfile -File $AuditScript --json 2>&1 | Out-String
+        $output = & $script:PowerShellExe -NoProfile -File $AuditScript --json 2>&1 | Out-String
         if ($output -match '"platform"') {
             try {
                 $jsonPart = $output -split "JSON OUTPUT:" | Select-Object -Last 1
@@ -120,10 +120,10 @@ function Test-JsonOutput {
 # Test 5: JSON file output works
 function Test-JsonFileOutput {
     Write-Host "Test: --json-path creates output file"
-    $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-test-$PID.json"
+    $testFile = Join-Path -Path $script:TempDir -ChildPath "openclaw-test-$PID.json"
     
     try {
-        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $script:PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         
         if (Test-Path $testFile) {
             $content = Get-Content -Path $testFile -Raw
@@ -144,10 +144,10 @@ function Test-JsonFileOutput {
 # Test 6: Exit code is proper
 function Test-ExitCodes {
     Write-Host "Test: Script returns valid exit code"
-    $testFile = Join-Path -Path $TempDir -ChildPath "test-exit-$PID.json"
+    $testFile = Join-Path -Path $script:TempDir -ChildPath "test-exit-$PID.json"
     
     try {
-        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $script:PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         $exitCode = $LASTEXITCODE
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
@@ -166,9 +166,9 @@ function Test-ExitCodeNotInstalled {
     Write-Host "Test: Exit code 2 when OpenClaw not installed"
     
     # Create a temporary HOME directory with no OpenClaw installation
-    $tempHome = Join-Path -Path $TempDir -ChildPath "openclaw-test-home-$PID"
+    $tempHome = Join-Path -Path $script:TempDir -ChildPath "openclaw-test-home-$PID"
     New-Item -ItemType Directory -Path $tempHome -Force | Out-Null
-    $testFile = Join-Path -Path $TempDir -ChildPath "test-not-installed-$PID.json"
+    $testFile = Join-Path -Path $script:TempDir -ChildPath "test-not-installed-$PID.json"
     
     try {
         # Override HOME and remove PATH entries that might have OpenClaw
@@ -176,7 +176,7 @@ function Test-ExitCodeNotInstalled {
         $env:USERPROFILE = $tempHome
         $env:PATH = "C:\Windows\System32;C:\Windows"
         
-        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $script:PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         $exitCode = $LASTEXITCODE
         
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
@@ -197,10 +197,10 @@ function Test-ExitCodeNotInstalled {
 # Test 6c: Exit code 0 for clean system (if not installed, should be 2)
 function Test-ExitCodeClean {
     Write-Host "Test: Exit code 0 for clean system or 2 if not installed"
-    $testFile = Join-Path -Path $TempDir -ChildPath "test-clean-$PID.json"
+    $testFile = Join-Path -Path $script:TempDir -ChildPath "test-clean-$PID.json"
     
     try {
-        & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        & $script:PowerShellExe -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
         $exitCode = $LASTEXITCODE
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
@@ -222,10 +222,10 @@ function Test-ExitCodeClean {
 # Test 7: MDM mode suppresses output
 function Test-MdmModeSilent {
     Write-Host "Test: --mdm mode suppresses terminal output"
-    $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-mdm-test-$PID.json"
+    $testFile = Join-Path -Path $script:TempDir -ChildPath "openclaw-mdm-test-$PID.json"
     
     try {
-        $output = & $PowerShellExe -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-String
+        $output = & $script:PowerShellExe -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-String
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
         $lineCount = ($output -split "`n").Count
@@ -244,10 +244,10 @@ function Test-MdmModeSilent {
 # Test 8: MDM mode includes metadata
 function Test-MdmMetadata {
     Write-Host "Test: MDM mode includes machine metadata"
-    $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-mdm-meta-$PID.json"
+    $testFile = Join-Path -Path $script:TempDir -ChildPath "openclaw-mdm-meta-$PID.json"
     
     try {
-        & $PowerShellExe -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-Null
+        & $script:PowerShellExe -NoProfile -File $AuditScript --mdm --json-path $testFile 2>&1 | Out-Null
         
         if (Test-Path $testFile) {
             $content = Get-Content -Path $testFile -Raw
@@ -269,7 +269,7 @@ function Test-MdmMetadata {
 function Test-SecuritySummary {
     Write-Host "Test: Security summary is calculated"
     try {
-        $output = & $PowerShellExe -NoProfile -File $AuditScript --json 2>&1 | Out-String
+        $output = & $script:PowerShellExe -NoProfile -File $AuditScript --json 2>&1 | Out-String
         if ($output -match '"security_summary"' -and $output -match '"risk_level"') {
             Pass "Security summary is calculated"
         } else {
@@ -296,12 +296,12 @@ function Test-PowerShell51Compatibility {
 # Test 11: HTTP upload functionality
 function Test-HttpUpload {
     Write-Host "Test: HTTP upload to remote endpoint"
-    $testFile = Join-Path -Path $TempDir -ChildPath "openclaw-upload-test-$PID.json"
-    $logFile = Join-Path -Path $TempDir -ChildPath "openclaw-upload-log-$PID.txt"
+    $testFile = Join-Path -Path $script:TempDir -ChildPath "openclaw-upload-test-$PID.json"
+    $logFile = Join-Path -Path $script:TempDir -ChildPath "openclaw-upload-log-$PID.txt"
     
     try {
         # Run the script WITH --upload-url and --log-file to test the actual upload feature
-        $output = & $PowerShellExe -NoProfile -File $AuditScript --json-path $testFile --upload-url "https://httpbin.org/post" --log-file $logFile 2>&1 | Out-String
+        $output = & $script:PowerShellExe -NoProfile -File $AuditScript --json-path $testFile --upload-url "https://httpbin.org/post" --log-file $logFile 2>&1 | Out-String
         $exitCode = $LASTEXITCODE
         
         # Check if JSON file was created
