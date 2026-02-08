@@ -19,7 +19,7 @@ Write-Host "==================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Detect available PowerShell executable
-$PowerShellExe = if (Get-Command pwsh -ErrorAction SilentlyContinue) {
+$script:PowerShellExe = if (Get-Command pwsh -ErrorAction SilentlyContinue) {
     "pwsh"
 } elseif (Get-Command powershell -ErrorAction SilentlyContinue) {
     "powershell"
@@ -28,11 +28,11 @@ $PowerShellExe = if (Get-Command pwsh -ErrorAction SilentlyContinue) {
     exit 1
 }
 
-Write-Host "Using PowerShell: $PowerShellExe" -ForegroundColor Gray
+Write-Host "Using PowerShell: $script:PowerShellExe" -ForegroundColor Gray
 Write-Host ""
 
 # Cross-platform temp directory
-$TempDir = if ($env:TEMP) { $env:TEMP } elseif ($env:TMPDIR) { $env:TMPDIR } else { "/tmp" }
+$script:TempDir = if ($env:TEMP) { $env:TEMP } elseif ($env:TMPDIR) { $env:TMPDIR } else { "/tmp" }
 
 # Helper functions
 function Pass {
