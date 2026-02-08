@@ -934,14 +934,39 @@ run_audit() {
     fi
   fi
   
-  # Script completed successfully
+  # Determine exit code based on findings
+  local exit_code=0
+  
+  # Check if OpenClaw is installed (CLI, config, or state dir exists)
+  if [[ "$cli_installed" != "true" && "$config_exists" != "true" && ! -d "$state_dir" ]]; then
+    exit_code=2  # Not installed
+    log_msg "INFO" "OpenClaw not installed (exit code 2)"
+  elif [[ "$risk_level" == "critical" ]]; then
+    exit_code=1  # Critical issues found
+    log_msg "INFO" "Critical security issues found (exit code 1)"
+  elif [[ "$risk_level" == "warning" ]]; then
+    exit_code=1  # Warnings found
+    log_msg "INFO" "Security warnings found (exit code 1)"
+  else
+    exit_code=0  # Clean
+    log_msg "INFO" "No issues detected (exit code 0)"
+  fi
+  
   log_msg "INFO" "Audit completed successfully"
-  return 0
+  return $exit_code
 }
 
 # Run audit and capture exit code
+set +e  # Don't exit on error, we want to capture the exit code
 run_audit
 EXIT_CODE=$?
+set -e
+
+# Handle script errors (exit code 3)
+if [[ $EXIT_CODE -gt 2 ]]; then
+  log_msg "ERROR" "Script execution error (exit code 3)"
+  EXIT_CODE=3
+fi
 
 # Final output based on mode
 if [[ "$MDM_MODE" != "true" ]]; then

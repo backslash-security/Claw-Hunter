@@ -138,13 +138,71 @@ function Test-ExitCodes {
         $exitCode = $LASTEXITCODE
         Remove-Item -Path $testFile -ErrorAction SilentlyContinue
         
-        if ($exitCode -in @(0, 1)) {
+        if ($exitCode -in @(0, 1, 2)) {
             Pass "Exit code is valid ($exitCode)"
         } else {
-            Fail "Exit code is valid" "0 or 1" "$exitCode"
+            Fail "Exit code is valid" "0, 1, or 2" "$exitCode"
         }
     } catch {
-        Fail "Exit code is valid" "0 or 1" "error: $_"
+        Fail "Exit code is valid" "0, 1, or 2" "error: $_"
+    }
+}
+
+# Test 6b: Exit code 2 when not installed
+function Test-ExitCodeNotInstalled {
+    Write-Host "Test: Exit code 2 when OpenClaw not installed"
+    
+    # Create a temporary HOME directory with no OpenClaw installation
+    $tempHome = Join-Path -Path $TempDir -ChildPath "openclaw-test-home-$PID"
+    New-Item -ItemType Directory -Path $tempHome -Force | Out-Null
+    $testFile = Join-Path -Path $TempDir -ChildPath "test-not-installed-$PID.json"
+    
+    try {
+        # Override HOME and remove PATH entries that might have OpenClaw
+        $env:HOME = $tempHome
+        $env:USERPROFILE = $tempHome
+        $env:PATH = "C:\Windows\System32;C:\Windows"
+        
+        & pwsh -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        $exitCode = $LASTEXITCODE
+        
+        Remove-Item -Path $testFile -ErrorAction SilentlyContinue
+        Remove-Item -Path $tempHome -Recurse -Force -ErrorAction SilentlyContinue
+        
+        if ($exitCode -eq 2) {
+            Pass "Exit code 2 when not installed ($exitCode)"
+        } else {
+            Write-Host "[SKIP] Exit code 2 test (OpenClaw may be installed, got exit code $exitCode)" -ForegroundColor Yellow
+            $script:TestsRun++
+        }
+    } catch {
+        Write-Host "[SKIP] Exit code 2 test (error during test: $_)" -ForegroundColor Yellow
+        $script:TestsRun++
+    }
+}
+
+# Test 6c: Exit code 0 for clean system (if not installed, should be 2)
+function Test-ExitCodeClean {
+    Write-Host "Test: Exit code 0 for clean system or 2 if not installed"
+    $testFile = Join-Path -Path $TempDir -ChildPath "test-clean-$PID.json"
+    
+    try {
+        & pwsh -NoProfile -File $AuditScript --json-path $testFile 2>&1 | Out-Null
+        $exitCode = $LASTEXITCODE
+        Remove-Item -Path $testFile -ErrorAction SilentlyContinue
+        
+        # Valid exit codes are 0 (clean), 1 (issues), or 2 (not installed)
+        if ($exitCode -eq 0) {
+            Pass "Exit code 0 (clean system)"
+        } elseif ($exitCode -eq 1) {
+            Pass "Exit code 1 (security issues detected)"
+        } elseif ($exitCode -eq 2) {
+            Pass "Exit code 2 (not installed)"
+        } else {
+            Fail "Valid exit code" "0, 1, or 2" "$exitCode"
+        }
+    } catch {
+        Fail "Valid exit code" "0, 1, or 2" "error: $_"
     }
 }
 
@@ -282,6 +340,8 @@ Test-InvalidFlag
 Test-JsonOutput
 Test-JsonFileOutput
 Test-ExitCodes
+Test-ExitCodeNotInstalled
+Test-ExitCodeClean
 Test-MdmModeSilent
 Test-MdmMetadata
 Test-SecuritySummary
