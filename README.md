@@ -6,7 +6,9 @@
 </p>
 
 <h1 align="center">
-  🦞 Claw Hunter 🦞 by Backslash Security
+  🦞 Claw Hunter 🦞 <br/>
+    Open-Claw Visibility Scanning and Security <br/>
+    by Backslash Security
     
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bash](https://img.shields.io/badge/Bash-3.2+-green.svg)](https://www.gnu.org/software/bash/)
